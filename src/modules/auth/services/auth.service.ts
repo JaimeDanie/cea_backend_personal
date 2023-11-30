@@ -15,15 +15,27 @@ export class AuthService {
   async signIn({email, password}: SignInDto){
     const user = await this.userService.getUserByEmail(email)
 
-    if(!await bcrypt.compare(password, user.password)) {
+    if(!user || !await bcrypt.compare(password, user.password)) {
       throw new UnauthorizedException()
     }
 
-    const payload = { sub: user.id, email: user.email }
+    const { password: pass, ... current_user  } = user
+
+    const payload = { 
+      sub: user.id, 
+      email: user.email
+    }
 
     return {
+      current_user,
       access_token: await this.jwtService.signAsync(payload)
     }
+  }
+
+  async signOut(token) {
+    const jwtDecoded = await this.jwtService.decode(token.split(" ")[1])
+    console.log(`User ${ JSON.stringify(jwtDecoded) } logged out.`)
+    return { message: 'signed out' }
   }
 
   async changePassword(id: string, {password, confirmation}: ChangePasswordDto){
