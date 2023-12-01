@@ -10,12 +10,12 @@ export const DatabaseProvider: DynamicModule = TypeOrmModule.forRootAsync({
   async useFactory(config: ConfigService) {
 
     const dbConfig = {
-      type: config.get('DB_TYPE'),
-      host: config.get('DB_HOST'),
-      port: +config.get('DB_PORT'),
-      username: config.get('DB_USER'),
-      password: config.get('DB_PASS'),
-      database: config.get('DB_NAME'),
+      type: config.get('database.type'),
+      host: config.get('database.host'),
+      port: +config.get('database.port'),
+      username: config.get('database.user'),
+      password: config.get('database.pass'),
+      database: config.get('database.name'),
       autoLoadEntities: true,
       // entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,

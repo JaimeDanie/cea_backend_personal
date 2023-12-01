@@ -13,7 +13,7 @@ const CORS: CorsOptions = {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService)
-  const appPort = config.get("APP_PORT")
+  const appPort = config.get('port')
 
   app.setGlobalPrefix('api')
 
@@ -29,7 +29,6 @@ async function bootstrap() {
       }
     })
   )
-
   await app.listen(appPort);
 }
 bootstrap();
