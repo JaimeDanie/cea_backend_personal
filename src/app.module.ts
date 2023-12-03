@@ -10,8 +10,8 @@ import configuration from './config/configuration';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `${process.env.NODE_ENV}.env`,
       isGlobal: true,
+      envFilePath: `./.env`,
       load: [configuration]
     }),
     DatabaseModule,

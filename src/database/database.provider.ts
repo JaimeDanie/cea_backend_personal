@@ -17,10 +17,11 @@ export const DatabaseProvider: DynamicModule = TypeOrmModule.forRootAsync({
       password: config.get('database.pass'),
       database: config.get('database.name'),
       autoLoadEntities: true,
-      // entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
+      ssl: true, 
       options: {
-        trustServerCertificate: true
+        trustServerCertificate: true,
       },
       namingStrategy: new SnakeNamingStrategy()
     } as DataSourceOptions
