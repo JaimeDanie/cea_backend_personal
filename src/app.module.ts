@@ -16,7 +16,7 @@ import configuration from './config/configuration';
     }),
     DatabaseModule,
     UserModule,
-    //AuthModule,
+    AuthModule,
     SiteModule
   ],
   controllers: [],

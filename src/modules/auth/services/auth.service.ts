@@ -4,7 +4,6 @@ import { SignInDto } from "../dtos/sign-in.dto";
 import { BadRequestException, Inject, UnauthorizedException } from "@nestjs/common";
 import * as bcrypt from 'bcrypt'
 import { ChangePasswordDto } from "../dtos/change-password.dto";
-import { User } from "src/modules/user/entities/user.entity";
 
 export class AuthService {
   constructor(
