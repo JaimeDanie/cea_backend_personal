@@ -14,6 +14,11 @@ export class UsersController {
     return this.userService.getUsers()
   }
 
+  @Get(':id')
+  show(@Param('id') id: string): Promise<User> {
+    return this.userService.getUser(id)
+  }
+
   @Post()
   create(@Body() user: CreateUserDto): Promise<User> {
     return this.userService.createUser(user)

@@ -18,9 +18,9 @@ export class AuthController {
     return this.authService.signOut(token)
   }
 
-  @UseGuards(AuthGuard)
-  @Post('change-password')
-  changePassword(@Request() req, @Body() {password, confirmation}: ChangePasswordDto){
-    return this.authService.changePassword(req.user.sub, {password, confirmation})
-  }
+  // @UseGuards(AuthGuard)
+  // @Post('change-password')
+  // changePassword(@Request() req, @Body() {password, confirmation}: ChangePasswordDto){
+  //   return this.authService.changePassword(req.user.sub, {password, confirmation})
+  // }
 }

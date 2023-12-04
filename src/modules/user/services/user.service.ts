@@ -25,6 +25,20 @@ export class UserService {
     })
   }
 
+  async getUser(id: string): Promise<User> {
+    return await this.userRepository.findOne({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true
+      },
+      where: { id }
+    })
+  }
+
   async getUserByEmail(email: string): Promise<User | undefined> {
     return this.userRepository.findOne({
       where: { email },

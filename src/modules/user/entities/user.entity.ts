@@ -5,13 +5,13 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({name: 'first_name', nullable: false })
+  @Column({nullable: false })
   firstName: string
 
-  @Column({name: 'last_name', nullable: false })
+  @Column({nullable: false })
   lastName: string
 
-  @Column({unique: true, nullable: false })
+  @Column({unique: true, nullable: false})
   email: string
 
   @Column({nullable: false })
