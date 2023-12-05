@@ -39,12 +39,6 @@ export class UserService {
     })
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    return this.userRepository.findOne({
-      where: { email },
-    })
-  }
-
   async createUser(user: CreateUserDto): Promise<any> {
     const { email } = user
     const existingUser: User = await this.userRepository.findOne({ where: { email } })
@@ -65,10 +59,15 @@ export class UserService {
   async updateUser(id: string, body: UpdateUserDto): Promise<any> {
     try {
       const updateUser: User = await this.userRepository.findOne({ where: { id } })
-      if (body.password !== undefined) {
+      if (body.password && body.password.length > 0) {
         updateUser.password = await this.hashPassword(updateUser.password)
       }
-      const { password, ...result } = await this.userRepository.save(updateUser)
+      Object.entries(body).forEach((entry) => {
+        if(entry[1].length > 0 && entry[0] !== "password") {
+          updateUser[entry[0]] = entry[1] 
+        }
+      })
+      const {password, ... result} = await this.userRepository.save(updateUser)
       return result
     } catch (error) {
       throw new Error(error)
