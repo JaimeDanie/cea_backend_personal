@@ -6,6 +6,8 @@ import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import * as bcrypt from 'bcrypt'
 import { UpdateUserDto } from "../dtos/update.dto";
 
+import { AppDataSource } from "src/database/data-source";
+
 @Injectable()
 export class UserService {
   constructor(
@@ -13,25 +15,34 @@ export class UserService {
   ) { }
 
   async getUsers(): Promise<User[]> {
-    return await this.userRepository.find({
+    return await AppDataSource.manager.find(User, {
       select: {
         id: true,
         firstName: true,
         lastName: true,
         email: true,
+        isActive: true,
+        isAdmin: true, 
+        currentToken: true,
         createdAt: true,
         updatedAt: true
-      }
+      },
+      // where: {
+      //   isActive: true
+      // }
     })
   }
 
   async getUser(id: string): Promise<User> {
-    return await this.userRepository.findOne({
+    return await AppDataSource.manager.findOne(User, {
       select: {
         id: true,
         firstName: true,
         lastName: true,
         email: true,
+        isActive: true,
+        isAdmin: true,
+        currentToken: true, 
         createdAt: true,
         updatedAt: true
       },
@@ -40,35 +51,54 @@ export class UserService {
   }
 
   async createUser(user: CreateUserDto): Promise<any> {
-    const { email } = user
-    const existingUser: User = await this.userRepository.findOne({ where: { email } })
-
-    if (existingUser) {
-      throw new HttpException(
-        'Email is already taken',
-        HttpStatus.BAD_REQUEST
-      )
+    try {
+      const { email } = user
+      const existingUser: User = await AppDataSource.manager.findOne(User, { where: { email } })
+  
+      if (existingUser) {
+        throw new HttpException(
+          'Email is already taken',
+          HttpStatus.BAD_REQUEST
+        )
+      }
+      const createResult = await AppDataSource.createQueryBuilder().insert().into(User).values([
+        { 
+          firstName: user.firstName,
+          lastName: user.lastName, 
+          email: user.email,           
+          password: await this.hashPassword(user.password),
+          isActive: user.isActive
+        }
+      ]).execute()
+  
+      const { password, ...result } = await AppDataSource.manager.findOne(User, { where: { id: createResult.identifiers[0].id }})
+  
+      return result      
+    } catch (error) {
+      throw new Error(error)
     }
-    const createdUser: User = this.userRepository.create(user)
-
-    createdUser.password = await this.hashPassword(createdUser.password)
-    const { password, ...result } = await this.userRepository.save(createdUser)
-    return result
   }
 
   async updateUser(id: string, body: UpdateUserDto): Promise<any> {
     try {
-      const updateUser: User = await this.userRepository.findOne({ where: { id } })
-      if (body.password && body.password.length > 0) {
-        updateUser.password = await this.hashPassword(updateUser.password)
+      const updateBody = { ...body }
+
+      if(updateBody.hasOwnProperty("password") && (updateBody.password.length > 0 && updateBody.password.length < 6)){
+        throw new Error('password must be less than 6 characters')
       }
-      Object.entries(body).forEach((entry) => {
-        if(entry[1].length > 0 && entry[0] !== "password") {
-          updateUser[entry[0]] = entry[1] 
-        }
-      })
-      const {password, ... result} = await this.userRepository.save(updateUser)
-      return result
+
+      if(updateBody.hasOwnProperty("password") && updateBody.password.length === 0){
+        delete updateBody.password
+      }
+
+      if(updateBody.hasOwnProperty("password") && updateBody.password.length >= 6) {
+        updateBody.password = await this.hashPassword(updateBody.password)
+      }
+
+      const updateResult = await AppDataSource.createQueryBuilder().update(User).set({...updateBody}).where("id = :id", { id }).execute()
+      const { password, ...result } = await AppDataSource.manager.findOne(User, { where: { id }})
+
+      return result 
     } catch (error) {
       throw new Error(error)
     }
@@ -84,9 +114,10 @@ export class UserService {
     }
   }
 
-  async deleteUser(id: string): Promise<DeleteResult | undefined> {
+  async deleteUser(id: string): Promise<any> {
     try {
-      return await this.userRepository.delete(id)
+      const deleteResult = AppDataSource.createQueryBuilder().update(User).set({ currentToken: null, isActive: false }).where("id = :id", { id }).execute()
+      return deleteResult
     } catch (error) {
       throw new Error(error)
     }

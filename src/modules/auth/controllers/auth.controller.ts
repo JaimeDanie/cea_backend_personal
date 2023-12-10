@@ -14,8 +14,10 @@ export class AuthController {
   }
 
   @Post('sign-out')
+  @UseGuards(AuthGuard)
   signOut(@Headers('authorization') token, @Body() {}){
-    return this.authService.signOut(token)
+    //return this.authService.signOut(token)
+    return token
   }
 
   // @UseGuards(AuthGuard)

@@ -29,12 +29,6 @@ async function bootstrap() {
       }
     })
   )
-  console.log(`
-    Environment: ${process.env.APP_ENV},
-    Node: ${process.env.NODE_ENV},
-    Port: ${config.get('port')}
-  `)
-
   await app.listen(appPort);
 }
 bootstrap();

@@ -1,14 +1,12 @@
 import { DynamicModule } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DataSourceOptions } from "typeorm";
 import { SnakeNamingStrategy } from "typeorm-naming-strategies";
 
 export const DatabaseProvider: DynamicModule = TypeOrmModule.forRootAsync({
-  inject: [ConfigService],
-
+  imports: [ConfigModule],
   async useFactory(config: ConfigService) {
-
     const dbConfig = {
       type: config.get('database.type'),
       host: config.get('database.host'),
@@ -18,14 +16,14 @@ export const DatabaseProvider: DynamicModule = TypeOrmModule.forRootAsync({
       database: config.get('database.name'),
       autoLoadEntities: true,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
-      ssl: true, 
       options: {
+        encrypt: false,
         trustServerCertificate: true,
       },
       namingStrategy: new SnakeNamingStrategy()
     } as DataSourceOptions
 
     return dbConfig
-  }
+  },
+  inject: [ConfigService]
 })
