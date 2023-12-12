@@ -46,6 +46,7 @@ export class UserService {
         email: true,
         isActive: true,
         isAdmin: true,
+        roles: true, 
         currentToken: true,
         createdAt: true,
         updatedAt: true
