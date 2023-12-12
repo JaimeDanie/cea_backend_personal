@@ -1,4 +1,5 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator"
+import { IsArray, IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, MinLength, isArray } from "class-validator"
+import { Role } from "../entities/role.entity"
 
 export class CreateUserDto {
   @IsString()
@@ -29,4 +30,8 @@ export class CreateUserDto {
   @IsBoolean()
   @IsOptional()
   readonly isAdmin:boolean
+
+  @IsArray()
+  @IsOptional()
+  readonly roles: Role[]
 }

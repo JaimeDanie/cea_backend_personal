@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsEmail, IsOptional, MinLength, IsBoolean } from "class-validator"
+import { IsString, IsNotEmpty, IsEmail, IsOptional, MinLength, IsBoolean, IsArray } from "class-validator"
+import { Role } from "../entities/role.entity"
 
 export class UpdateUserDto {
   @IsString()
@@ -20,6 +21,10 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   readonly password: string
+
+  @IsArray()
+  @IsOptional()
+  readonly roles: Role[]
 
   @IsBoolean()
   @IsOptional()

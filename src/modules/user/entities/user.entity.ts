@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Role } from "./role.entity";
 
 @Entity({ name: 'users' })
 export class User {
@@ -25,6 +26,10 @@ export class User {
 
   @Column({ default: false })
   isAdmin: boolean
+
+  @ManyToMany( (type) => Role, (role) => role.users, { cascade: true, eager: true })
+  @JoinTable()
+  roles: Role[]
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

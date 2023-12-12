@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt'
 import { UpdateUserDto } from "../dtos/update.dto";
 
 import { AppDataSource } from "src/database/data-source";
+import { Role } from "../entities/role.entity";
 
 @Injectable()
 export class UserService {
@@ -22,14 +23,17 @@ export class UserService {
         lastName: true,
         email: true,
         isActive: true,
-        isAdmin: true, 
+        isAdmin: true,
+        roles: {
+          name: true
+        },
         currentToken: true,
         createdAt: true,
         updatedAt: true
       },
-      // where: {
-      //   isActive: true
-      // }
+      relations: {
+        roles: true
+      }
     })
   }
 
@@ -42,38 +46,44 @@ export class UserService {
         email: true,
         isActive: true,
         isAdmin: true,
-        currentToken: true, 
+        currentToken: true,
         createdAt: true,
         updatedAt: true
       },
-      where: { id }
+      where: { id },
+      relations: {
+        roles: true
+      }
     })
   }
 
   async createUser(user: CreateUserDto): Promise<any> {
+
+    const { email } = user
+    const existingUser: User = await AppDataSource.manager.findOne(User, { where: { email } })
+
+    if (existingUser) {
+      throw new HttpException(
+        'Email is already taken',
+        HttpStatus.BAD_REQUEST
+      )
+    }
+
     try {
-      const { email } = user
-      const existingUser: User = await AppDataSource.manager.findOne(User, { where: { email } })
-  
-      if (existingUser) {
-        throw new HttpException(
-          'Email is already taken',
-          HttpStatus.BAD_REQUEST
-        )
-      }
-      const createResult = await AppDataSource.createQueryBuilder().insert().into(User).values([
-        { 
-          firstName: user.firstName,
-          lastName: user.lastName, 
-          email: user.email,           
-          password: await this.hashPassword(user.password),
-          isActive: user.isActive
-        }
-      ]).execute()
-  
-      const { password, ...result } = await AppDataSource.manager.findOne(User, { where: { id: createResult.identifiers[0].id }})
-  
-      return result      
+      const userCreated = AppDataSource.manager.create(User, {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        password: await this.hashPassword(user.password),
+        roles: user.roles,
+        isActive: user.isActive,
+        isAdmin: user.isAdmin,
+      })
+
+      const { password, ...result } = await AppDataSource.manager.save(userCreated)
+
+      return result
+
     } catch (error) {
       throw new Error(error)
     }
@@ -83,22 +93,29 @@ export class UserService {
     try {
       const updateBody = { ...body }
 
-      if(updateBody.hasOwnProperty("password") && (updateBody.password.length > 0 && updateBody.password.length < 6)){
+      if (updateBody.hasOwnProperty("password") && (updateBody.password.length > 0 && updateBody.password.length < 6)) {
         throw new Error('password must be less than 6 characters')
       }
 
-      if(updateBody.hasOwnProperty("password") && updateBody.password.length === 0){
+      if (updateBody.hasOwnProperty("password") && updateBody.password.length === 0) {
         delete updateBody.password
       }
 
-      if(updateBody.hasOwnProperty("password") && updateBody.password.length >= 6) {
-        updateBody.password = await this.hashPassword(updateBody.password)
+      const existingUser: User = await AppDataSource.manager.findOne(User, { where: { id } , relations: { roles: true }})
+      
+      if (updateBody.hasOwnProperty("password") && updateBody.password.length >= 6) {
+        updateBody.password = await this.hashPassword(updateBody.password)        
       }
 
-      const updateResult = await AppDataSource.createQueryBuilder().update(User).set({...updateBody}).where("id = :id", { id }).execute()
-      const { password, ...result } = await AppDataSource.manager.findOne(User, { where: { id }})
+      updateBody.hasOwnProperty("firstName") ? existingUser.firstName = updateBody.firstName : undefined 
+      updateBody.hasOwnProperty("lastName") ? existingUser.lastName = updateBody.lastName : undefined 
+      updateBody.hasOwnProperty("password") ? existingUser.password = updateBody.password : undefined 
+      updateBody.hasOwnProperty("isActive") ? existingUser.isActive = updateBody.isActive : undefined
+      updateBody.hasOwnProperty("isAdmin") ? existingUser.isAdmin = updateBody.isAdmin : undefined
+      updateBody.hasOwnProperty("roles") ? existingUser.roles = updateBody.roles : undefined
 
-      return result 
+      const { password, ...result } = await AppDataSource.manager.save(existingUser)
+      return result
     } catch (error) {
       throw new Error(error)
     }
