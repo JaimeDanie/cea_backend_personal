@@ -1,6 +1,7 @@
 import { DynamicModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { join } from "path";
 import { DataSourceOptions } from "typeorm";
 import { SnakeNamingStrategy } from "typeorm-naming-strategies";
 
@@ -15,7 +16,7 @@ export const DatabaseProvider: DynamicModule = TypeOrmModule.forRootAsync({
       password: config.get('database.pass'),
       database: config.get('database.name'),
       autoLoadEntities: true,
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [join(__dirname, '**', '*.entity.{ts,js}')],
       options: {
         encrypt: false,
         trustServerCertificate: true,

@@ -8,6 +8,8 @@ import AppConfig from 'src/config/app.config'
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {dataSource, dataSourceOptions} from 'src/config/data-source'
 import configuration from './config/configuration';
+import { OrderModule } from './modules/order/order.module';
+
 
 
 @Module({
@@ -20,7 +22,9 @@ import configuration from './config/configuration';
     DatabaseModule,
     UserModule,
     AuthModule,
-    SiteModule
+   // OrderModule, //comentado porque da error
+    SiteModule,
+    OrderModule
   ],
   controllers: [],
   providers: [],
