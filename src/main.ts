@@ -1,23 +1,39 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
+
 import { ValidationPipe } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 const CORS: CorsOptions = {
-  origin: true, 
+  origin: true,
   methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
-  credentials: true
-}
+  credentials: true,
+};
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const config = app.get(ConfigService)
-  const appPort = config.get('port')
+  const config = app.get(ConfigService);
+  const appPort = config.get('port');
 
-  app.setGlobalPrefix('api')
+  app.setGlobalPrefix('api');
 
-  app.enableCors(CORS)
+  const configSwagger = new DocumentBuilder()
+    .setTitle('Muto projects')
+    .setDescription('Description')
+    .setVersion('1.0')
+    .addBearerAuth({
+      type: 'http',
+      in: 'header',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+    })
+    .build();
+  const document = SwaggerModule.createDocument(app, configSwagger);
+  SwaggerModule.setup('api-docs', app, document);
+
+  app.enableCors(CORS);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -25,10 +41,10 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transformOptions: {
-        enableImplicitConversion: true
-      }
-    })
-  )
+        enableImplicitConversion: true,
+      },
+    }),
+  );
   await app.listen(appPort);
 }
 bootstrap();

@@ -1,10 +1,10 @@
-import { TypeOrmModuleOptions } from "@nestjs/typeorm";
-import * as dotenv from 'dotenv'
-import { join } from "path";
-dotenv.config()
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import * as dotenv from 'dotenv';
+import { join } from 'path';
+dotenv.config();
 
 export const TypeORMConfig: TypeOrmModuleOptions = {
-  type: "mssql",
+  type: 'mssql',
   host: process.env.DB_HOST,
   port: +process.env.DB_PORT,
   username: process.env.DB_USER,
@@ -12,10 +12,10 @@ export const TypeORMConfig: TypeOrmModuleOptions = {
   database: process.env.DB_NAME,
   synchronize: false,
   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
-  migrations: [ "src/config/migrations/*{.ts,.js}" ],
-  migrationsTableName: "migrations",
+  migrations: ['src/config/migrations/*{.ts,.js}'],
+  migrationsTableName: 'migrations',
   logging: true,
   options: {
-    encrypt: false
-  }
-}
+    encrypt: false,
+  },
+};

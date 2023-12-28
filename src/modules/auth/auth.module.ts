@@ -1,11 +1,11 @@
-import { Module } from "@nestjs/common";
-import { UserModule } from "../user/user.module";
-import { AuthService } from "./services/auth.service";
-import { AuthController } from "./controllers/auth.controller";
-import { JwtModule } from "@nestjs/jwt";
-import { ConfigService } from "@nestjs/config";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { User } from "../user/entities/user.entity";
+import { ConfigService } from '@nestjs/config';
+import { Module } from '@nestjs/common';
+import { UserModule } from '../user/user.module';
+import { AuthService } from './services/auth.service';
+import { AuthController } from './controllers/auth.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../user/entities/user.entity';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -14,15 +14,14 @@ import { User } from "../user/entities/user.entity";
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        global: true, 
+        global: true,
         secret: configService.get('jwt.secret'),
-        signOptions: { expiresIn: '30d' }
+        signOptions: { expiresIn: '30d' },
       }),
-    })
+    }),
   ],
-  providers: [
-    AuthService
-  ],
-  controllers: [AuthController]
+  providers: [AuthService],
+  controllers: [AuthController],
+  exports: [AuthService],
 })
 export class AuthModule {}
