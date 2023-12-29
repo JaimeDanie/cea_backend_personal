@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && npm run copy && npm run node_modules:prod",
+    "build": "nest build",
     "copy": "cp \"package.json\" \"dist\" && cp \"web.config\" \"dist\"",
     "node_modules:prod": "cd dist && npm install --only=production",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
