@@ -5,8 +5,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { AppDataSource } from 'data-source';
 
-import { AppDataSource } from 'src/database/data-source';
 import { User } from 'src/modules/user/entities/user.entity';
 
 @Injectable()

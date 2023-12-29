@@ -7,8 +7,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from '../dtos/update.dto';
 
-import { AppDataSource } from 'src/database/data-source';
 import { Role } from '../entities/role.entity';
+import { AppDataSource } from 'data-source';
 
 @Injectable()
 export class UserService {

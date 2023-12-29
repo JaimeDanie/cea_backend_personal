@@ -1,11 +1,9 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { Order } from "../entities/order.entity";
-import { DeleteResult, InsertResult, Repository, UpdateResult } from "typeorm";
-import { CreateOrderDto } from "../dtos/create.dto";
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-
-
-import { AppDataSource } from "src/database/data-source";
+import { InjectRepository } from '@nestjs/typeorm';
+import { Order } from '../entities/order.entity';
+import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
+import { CreateOrderDto } from '../dtos/create.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { AppDataSource } from 'data-source';
 
 @Injectable()
 export class OrderService {
@@ -23,9 +21,9 @@ export class OrderService {
         filler: true,
         operator: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
       },
-    })
+    });
   }
 
   async getOrder(id: string): Promise<Order> {
@@ -35,32 +33,31 @@ export class OrderService {
   }
 
   async createOrder(orderData: CreateOrderDto): Promise<Order> {
+    const { sapOrderNumber } = orderData;
 
-    const { sapOrderNumber} = orderData;
-
-    const existingOrder: Order = await AppDataSource.manager.findOne(Order, { where: { sapOrderNumber } })
+    const existingOrder: Order = await AppDataSource.manager.findOne(Order, {
+      where: { sapOrderNumber },
+    });
 
     if (existingOrder) {
       throw new HttpException(
         'Order with the same SAP order number already exists',
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     }
 
     try {
-        const orderCreated = AppDataSource.manager.create(Order,{
-            sapOrderNumber: orderData.sapOrderNumber,
-            productName : orderData.productName,
-            filler : orderData.filler,
-            operator : orderData.operator,
-        })
+      const orderCreated = AppDataSource.manager.create(Order, {
+        sapOrderNumber: orderData.sapOrderNumber,
+        productName: orderData.productName,
+        filler: orderData.filler,
+        operator: orderData.operator,
+      });
 
-        const order = await AppDataSource.manager.save(orderCreated);
-        return order;
-
+      const order = await AppDataSource.manager.save(orderCreated);
+      return order;
     } catch (error) {
-        throw new Error(error)
+      throw new Error(error);
     }
-
   }
 }

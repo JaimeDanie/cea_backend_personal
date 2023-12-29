@@ -9,8 +9,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { ChangePasswordDto } from '../dtos/change-password.dto';
 import { User } from 'src/modules/user/entities/user.entity';
-
-import { AppDataSource } from 'src/database/data-source';
+import { AppDataSource } from 'data-source';
 
 export class AuthService {
   constructor(
