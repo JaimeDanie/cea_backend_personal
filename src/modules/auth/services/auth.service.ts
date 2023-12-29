@@ -1,3 +1,4 @@
+import { AppDataSource } from './../../../database/data-source';
 import { UserService } from './../../user/services/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from '../dtos/sign-in.dto';
@@ -9,7 +10,6 @@ import {
 import * as bcrypt from 'bcrypt';
 import { ChangePasswordDto } from '../dtos/change-password.dto';
 import { User } from 'src/modules/user/entities/user.entity';
-import { AppDataSource } from 'data-source';
 
 export class AuthService {
   constructor(
