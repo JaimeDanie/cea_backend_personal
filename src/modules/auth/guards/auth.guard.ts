@@ -1,3 +1,4 @@
+import { AppDataSource } from './../../../database/data-source';
 import {
   CanActivate,
   ExecutionContext,
@@ -5,7 +6,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AppDataSource } from 'data-source';
 
 import { User } from 'src/modules/user/entities/user.entity';
 
