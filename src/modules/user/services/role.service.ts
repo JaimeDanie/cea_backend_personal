@@ -1,3 +1,4 @@
+import { AppDataSource } from './../../../database/data-source';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from '../entities/role.entity';
@@ -5,7 +6,6 @@ import { Role } from '../entities/role.entity';
 import { Repository } from 'typeorm';
 import { CreateRoleDto } from '../dtos/createRole.dto';
 import { UpdateRoleDto } from '../dtos/updateRole.dto';
-import { AppDataSource } from 'data-source';
 
 @Injectable()
 export class RoleService {
