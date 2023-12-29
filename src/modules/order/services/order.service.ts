@@ -1,9 +1,9 @@
+import { AppDataSource } from './../../../database/data-source';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from '../entities/order.entity';
 import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
 import { CreateOrderDto } from '../dtos/create.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { AppDataSource } from 'data-source';
 
 @Injectable()
 export class OrderService {
