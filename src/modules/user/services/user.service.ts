@@ -1,3 +1,4 @@
+import { AppDataSource } from './../../../database/data-source';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { User } from '../entities/user.entity';
@@ -8,7 +9,6 @@ import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from '../dtos/update.dto';
 
 import { Role } from '../entities/role.entity';
-import { AppDataSource } from 'data-source';
 
 @Injectable()
 export class UserService {
