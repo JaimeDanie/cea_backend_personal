@@ -5,7 +5,9 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "type": "commonjs",
+  "engines": {
+    "node": "18.18.1"
+  },
   "scripts": {
     "build": "nest build",
     "copy": "cp \"package.json\" \"dist\" && cp \"web.config\" \"dist\"",
