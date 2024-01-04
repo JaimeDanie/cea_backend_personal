@@ -1,25 +1,47 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Tubular } from './../../tubular/entities/tubular.entity';
+import { Filler } from './../../filler/entities/filler.entities';
+
+import { Operate } from './../../operate/entities/operate.entity';
+
+import { Product } from './../../products/entities/product.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity({ name: 'orders' })
 export class Order {
-    @PrimaryGeneratedColumn('uuid')
-    id: string
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column({ nullable: false })
-    sapOrderNumber: string
+  @Column({ nullable: false })
+  saporder: string;
 
-    @Column({ nullable: false })
-    productName: string
+  @ManyToOne(() => Product)
+  @JoinColumn({ name: 'product', referencedColumnName: 'code' })
+  product: Product;
 
-    @Column({ nullable: false })
-    filler: string
+  @ManyToOne(() => Filler)
+  @JoinColumn({ name: 'filler', referencedColumnName: 'id' })
+  filler: Filler;
 
-    @Column({ nullable: false })
-    operator: string
+  @ManyToOne(() => Operate)
+  @JoinColumn({ name: 'operate', referencedColumnName: 'id' })
+  operate: Operate;
 
-    @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date;
+  @ManyToOne(() => Tubular)
+  @JoinColumn({ name: 'tubular', referencedColumnName: 'id' })
+  tubular: Tubular;
 
-    @UpdateDateColumn({ name: 'updated_at' })
-    updatedAt: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }

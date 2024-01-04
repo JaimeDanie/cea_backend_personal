@@ -1,3 +1,4 @@
+import { User } from 'src/modules/user/entities/user.entity';
 import {
   Body,
   Controller,
@@ -10,8 +11,12 @@ import {
 import { SignInDto } from '../dtos/sign-in.dto';
 import { AuthService } from '../services/auth.service';
 import { AuthGuard } from '../guards/auth.guard';
-import { ChangePasswordDto } from '../dtos/change-password.dto';
+import {
+  ChangePasswordDto,
+  RequestChangePassword,
+} from '../dtos/change-password.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UserService } from 'src/modules/user/services/user.service';
 
 @ApiTags('auth')
 @ApiBearerAuth()
@@ -31,15 +36,22 @@ export class AuthController {
     return this.authService.signOut(req.user);
   }
 
-  @UseGuards(AuthGuard)
   @Post('change-password')
   changePassword(
     @Request() req,
-    @Body() { password, confirmation }: ChangePasswordDto,
+    @Body() { password, confirmation, code }: ChangePasswordDto,
   ) {
-    return this.authService.changePassword(req.user.sub, {
+    return this.authService.changePassword({
       password,
       confirmation,
+      code,
     });
+  }
+
+  @Post('request-change-password')
+  requestResetPassword(
+    @Body() requestPassword: RequestChangePassword,
+  ): Promise<User> {
+    return this.authService.requestChangePassword(requestPassword.email);
   }
 }

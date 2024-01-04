@@ -4,6 +4,8 @@ import { CreateRoleDto } from '../dtos/createRole.dto';
 import { Role } from '../entities/role.entity';
 import { UpdateRoleDto } from '../dtos/updateRole.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { AssignedPermissionDto } from '../dtos/assignedRole.dto';
+import { ResponsePermissionDto } from '../dtos/responsePermission.dto';
 
 @ApiTags('roles')
 @Controller('roles')
@@ -29,5 +31,28 @@ export class RolesController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() body: UpdateRoleDto): Promise<Role> {
     return this.roleService.updateRole(id, body);
+  }
+
+  @Post('assignedPermission/:id')
+  asignedPermissionToRole(
+    @Param('id') idRole: string,
+    @Body() assignedPermissionToRole: AssignedPermissionDto,
+  ): Promise<ResponsePermissionDto> {
+    return this.roleService.assignedPermissionToRole(
+      idRole,
+      assignedPermissionToRole.idPermission,
+    );
+  }
+
+  @Post('unassignedPermission/:id')
+  deletePermissionToRole(
+    @Param('id') idRole: string,
+    @Body() assignedPermissionToRole: AssignedPermissionDto,
+  ): Promise<ResponsePermissionDto> {
+    return this.roleService.assignedPermissionToRole(
+      idRole,
+      assignedPermissionToRole.idPermission,
+      true,
+    );
   }
 }

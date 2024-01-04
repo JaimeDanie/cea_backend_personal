@@ -1,21 +1,31 @@
-import { IsNotEmpty, IsString, MinLength } from "class-validator"
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class CreateOrderDto {
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(2)
-    readonly sapOrderNumber: string
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  readonly saporder: string;
 
-    @IsString()
-    @IsNotEmpty()
-    @MinLength(2)
-    readonly productName: string
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  readonly product: string;
 
-    @IsString()
-    @IsNotEmpty()
-    readonly filler: string
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  readonly filler: string;
 
-    @IsString()
-    @IsNotEmpty()
-    readonly operator: string
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  readonly operate: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  readonly tubular: string;
 }

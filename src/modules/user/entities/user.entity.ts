@@ -1,40 +1,53 @@
-import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Role } from "./role.entity";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Role } from './role.entity';
 
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string
+  id: string;
 
   @Column({ nullable: false })
-  firstName: string
+  firstName: string;
 
   @Column({ nullable: false })
-  lastName: string
+  lastName: string;
 
   @Column({ unique: true, nullable: false })
-  email: string
+  email: string;
 
   @Column({ nullable: false })
-  password: string
+  password: string;
 
   @Column({ nullable: true })
   currentToken: string;
 
   @Column({ default: true })
-  isActive: boolean
+  isActive: boolean;
 
   @Column({ default: false })
-  isAdmin: boolean
+  isAdmin: boolean;
 
-  @ManyToMany( (type) => Role, (role) => role.users, { cascade: true, eager: true })
+  @Column({ nullable: true })
+  recoveryHashPassword: string;
+
+  @ManyToMany((type) => Role, (role) => role.users, {
+    cascade: true,
+    eager: true,
+  })
   @JoinTable()
-  roles: Role[]
+  roles: Role[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
-
 }

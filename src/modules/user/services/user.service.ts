@@ -7,8 +7,7 @@ import { CreateUserDto } from '../dtos/create.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from '../dtos/update.dto';
-
-import { Role } from '../entities/role.entity';
+import { ResponseUserDto } from '../dtos/responsePermission.dto';
 
 @Injectable()
 export class UserService {
@@ -17,7 +16,7 @@ export class UserService {
   ) {}
 
   async getUsers(): Promise<User[]> {
-    return await AppDataSource.manager.find(User, {
+    let users = await AppDataSource.manager.find(User, {
       select: {
         id: true,
         firstName: true,
@@ -28,7 +27,7 @@ export class UserService {
         roles: {
           name: true,
         },
-        currentToken: true,
+        currentToken: false,
         createdAt: true,
         updatedAt: true,
       },
@@ -36,6 +35,24 @@ export class UserService {
         roles: true,
       },
     });
+    users = users.map((user) => {
+      return {
+        ...user,
+        roles: user.roles
+          .map((rol) => {
+            if (rol.id !== null) {
+              return {
+                ...rol,
+                name: rol.name[0],
+              };
+            }
+          })
+          .filter((role) => role != null),
+      };
+    });
+
+    console.log('USERS MAPPER==>', users[1].roles);
+    return users;
   }
 
   async getUser(id: string): Promise<User> {
@@ -48,7 +65,8 @@ export class UserService {
         isActive: true,
         isAdmin: true,
         roles: true,
-        currentToken: true,
+        recoveryHashPassword: true,
+        currentToken: false,
         createdAt: true,
         updatedAt: true,
       },
@@ -80,8 +98,9 @@ export class UserService {
         isAdmin: user.isAdmin,
       });
 
-      const { password, ...result } =
-        await AppDataSource.manager.save(userCreated);
+      const { password, ...result } = await AppDataSource.manager.save(
+        userCreated,
+      );
 
       return result;
     } catch (error) {
@@ -139,8 +158,9 @@ export class UserService {
         ? (existingUser.roles = updateBody.roles)
         : undefined;
 
-      const { password, ...result } =
-        await AppDataSource.manager.save(existingUser);
+      const { password, ...result } = await AppDataSource.manager.save(
+        existingUser,
+      );
       return result;
     } catch (error) {
       throw new Error(error);
@@ -150,11 +170,29 @@ export class UserService {
   async updatePassword(
     id: string,
     password: string,
-  ): Promise<UpdateResult | undefined> {
+  ): Promise<User | undefined> {
     try {
-      return await this.userRepository.update(id, {
-        password: await this.hashPassword(password),
+      const user = await AppDataSource.manager.findOne(User, {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          isActive: true,
+          isAdmin: true,
+          roles: true,
+          currentToken: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        where: { id },
+        relations: {
+          roles: true,
+        },
       });
+      user.password = await this.hashPassword(password);
+      user.recoveryHashPassword = null;
+      return AppDataSource.manager.save(user);
     } catch (error) {
       throw new Error(error);
     }
@@ -176,5 +214,57 @@ export class UserService {
   private async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt();
     return await bcrypt.hash(password, salt);
+  }
+
+  async getUserByEmail(email: string): Promise<ResponseUserDto> {
+    const responseUserDto = new ResponseUserDto();
+    responseUserDto.data = null;
+    responseUserDto.success = false;
+    responseUserDto.message = 'user not foind';
+    responseUserDto.data = await AppDataSource.manager.findOne(User, {
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        isActive: true,
+        isAdmin: true,
+        roles: true,
+        currentToken: false,
+        createdAt: true,
+        updatedAt: true,
+      },
+      where: { email },
+      relations: {
+        roles: true,
+      },
+    });
+    if (responseUserDto.data) {
+      responseUserDto.success = true;
+      responseUserDto.message = null;
+      return responseUserDto;
+    }
+    return responseUserDto;
+  }
+
+  async getUserByRecovery(hashRecovery: string): Promise<User> {
+    return await AppDataSource.manager.findOne(User, {
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        isActive: true,
+        isAdmin: true,
+        roles: true,
+        currentToken: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      where: { recoveryHashPassword: hashRecovery },
+      relations: {
+        roles: true,
+      },
+    });
   }
 }

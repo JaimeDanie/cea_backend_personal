@@ -13,6 +13,7 @@ import { CreateUserDto } from '../dtos/create.dto';
 import { UpdateUserDto } from '../dtos/update.dto';
 import { DeleteResult } from 'typeorm';
 import { ApiTags } from '@nestjs/swagger';
+import { ResponseUserDto } from '../dtos/responsePermission.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -42,5 +43,10 @@ export class UsersController {
   @Delete(':id')
   delete(@Param('id') id: string): Promise<DeleteResult> {
     return this.userService.deleteUser(id);
+  }
+
+  @Get('byEmail/:email')
+  getByEmail(@Param('email') email: string): Promise<ResponseUserDto> {
+    return this.userService.getUserByEmail(email);
   }
 }

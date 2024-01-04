@@ -7,6 +7,13 @@ import { SiteModule } from './modules/site/site.module';
 import { OrderModule } from './modules/order/order.module';
 import { ConfigModule } from '@nestjs/config';
 import appConfig from './config/app.config';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { ProductsModule } from './modules/products/products.module';
+import { FillerModule } from './modules/filler/filler.module';
+import { TubularModule } from './modules/tubular/tubular.module';
+import { NonConformityModule } from './modules/non-conformity/non-conformity.module';
+import { FillingCameraModule } from './modules/filling-camera/filling-camera.module';
+import { OperateModule } from './modules/operate/operate.module';
 
 @Module({
   imports: [
@@ -15,12 +22,27 @@ import appConfig from './config/app.config';
       envFilePath: './.env',
       load: [appConfig],
     }),
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        auth: {
+          user: 'jaimedaniel.bm91@gmail.com',
+          pass: 'ouro baoc jmaj eacx',
+        },
+      },
+    }),
     DatabaseModule,
     UserModule,
     AuthModule,
     // OrderModule, //comentado porque da error
     SiteModule,
     OrderModule,
+    ProductsModule,
+    FillerModule,
+    TubularModule,
+    NonConformityModule,
+    FillingCameraModule,
+    OperateModule,
   ],
   controllers: [],
   providers: [],
