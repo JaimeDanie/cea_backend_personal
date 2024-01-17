@@ -8,5 +8,6 @@ import { FillingCamera } from './entities/filling-camera.entity';
   imports: [TypeOrmModule.forFeature([FillingCamera])],
   providers: [FilligCameraService],
   controllers: [FilligCameraController],
+  exports: [FilligCameraService],
 })
 export class FillingCameraModule {}

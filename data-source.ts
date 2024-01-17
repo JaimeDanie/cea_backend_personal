@@ -1,3 +1,4 @@
+import { OrderDetail } from './src/modules/order/entities/order-detail.entity';
 import { Operate } from './src/modules/operate/entities/operate.entity';
 import { NonConformity } from './src/modules/non-conformity/entities/NonConformity.entity';
 import { FillingCamera } from './src/modules/filling-camera/entities/filling-camera.entity';
@@ -21,6 +22,8 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   synchronize: false,
+  connectionTimeout: 30000,
+  requestTimeout: 30000,
   // entities: [__dirname + '/**/*.entity.ts', __dirname + '/src/**/*.entity.js'],
   entities: [
     User,
@@ -33,6 +36,7 @@ export const AppDataSource = new DataSource({
     FillingCamera,
     NonConformity,
     Operate,
+    OrderDetail,
   ],
   migrations: ['./src/database/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',

@@ -37,6 +37,10 @@ export class OrdersController {
   getByNumSap(@Param('numorder') numorder: string): Promise<Order> {
     return this.orderService.getOrderSap(numorder);
   }
+  @Get('/updateNumOrders/update')
+  numOrdersUpdate() {
+    return this.orderService.updateNumberOrder();
+  }
 
   @Put(':id')
   updateOredr(

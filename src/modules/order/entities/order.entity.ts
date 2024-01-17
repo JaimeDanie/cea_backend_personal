@@ -23,6 +23,9 @@ export class Order {
   @Column({ nullable: false })
   saporder: string;
 
+  @Column({ nullable: true })
+  numorder?: number;
+
   @ManyToOne(() => Product)
   @JoinColumn({ name: 'product', referencedColumnName: 'code' })
   product: Product;

@@ -81,6 +81,7 @@ export class PermissionService {
       response.message = 'Deleted succesfully';
       return response;
     } catch (error) {
+      console.log('EXCEPTION==>', error);
       response.message = 'Exception to deleted permission';
       return response;
     }

@@ -8,5 +8,6 @@ import { NonConformityController } from './controllers/non-conformity.controller
   imports: [TypeOrmModule.forFeature([NonConformity])],
   providers: [NonConformityService],
   controllers: [NonConformityController],
+  exports: [NonConformityService],
 })
 export class NonConformityModule {}

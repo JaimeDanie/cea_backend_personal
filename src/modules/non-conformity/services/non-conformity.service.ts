@@ -21,6 +21,12 @@ export class NonConformityService {
     });
   }
 
+  getById(id: string): Promise<NonConformity> {
+    return this.nonConformityRepository.findOne({
+      where: { id },
+    });
+  }
+
   async saveNonConformity(
     nonConformityDto: NonConformityDto,
   ): Promise<NonConformity> {

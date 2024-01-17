@@ -70,6 +70,7 @@ export class OrderService {
       product,
       filler,
       operate,
+      numorder: await this.generateNumOrder(),
     };
 
     return this.orderRepository.save(newOrder);
@@ -127,5 +128,35 @@ export class OrderService {
 
     await this.orderRepository.update(idOrder, newOrder);
     return this.getOrder(idOrder);
+  }
+
+  async updateNumberOrder() {
+    const orders = await this.orderRepository.find({});
+    if (orders.length > 0) {
+      try {
+        for (let order of orders) {
+          if (!order.numorder) {
+            const numOrder = await this.generateNumOrder();
+            if (numOrder) {
+              order.numorder = numOrder + 1;
+              await this.orderRepository.update(order.id, order);
+            } else {
+              order.numorder = 1;
+              await this.orderRepository.update(order.id, order);
+            }
+          }
+        }
+      } catch (error) {
+        console.log('ERROR==>', error);
+      }
+    }
+  }
+
+  async generateNumOrder() {
+    const ordersQuery = this.orderRepository
+      .createQueryBuilder('orders')
+      .select('MAX(orders.numorder)', 'max');
+    const numorder = await ordersQuery.getRawOne();
+    return numorder.max;
   }
 }
