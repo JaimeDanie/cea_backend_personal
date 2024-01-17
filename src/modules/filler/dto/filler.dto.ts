@@ -6,9 +6,4 @@ export class FillerDto {
   @Min(1)
   @ApiProperty()
   filler: number;
-
-  @Max(3)
-  @Min(1)
-  @ApiProperty()
-  tubullar: number;
 }

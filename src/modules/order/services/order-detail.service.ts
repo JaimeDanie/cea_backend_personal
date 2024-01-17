@@ -6,6 +6,7 @@ import { Order } from '../entities/order.entity';
 import { IsNull, LessThan, Not, Repository } from 'typeorm';
 import { OrderDetail } from '../entities/order-detail.entity';
 import {
+  CreateMoreOrderDetailDto,
   CreateOrderDetailDto,
   DurationFillerDTO,
   UpdateOrderDetailDTO,
@@ -23,25 +24,46 @@ export class OrderDetailService {
   ) {}
 
   // CREAR ORDER DETAILS
-  async createDetail(idOrder: string, orderDetail: CreateOrderDetailDto) {
+  async createDetail(
+    idOrder: string,
+    orderDetail: CreateOrderDetailDto,
+    created = false,
+    orderDetailMore: CreateMoreOrderDetailDto = null,
+  ) {
     const existOrder = await this.orderRepository.findOne({
       where: { id: idOrder },
     });
     if (existOrder) {
-      const existFillig = await this.fillingCameraService.findByid(
-        orderDetail.filligCamera,
-      );
+      let existFillig = null;
+      if (!created) {
+        existFillig = await this.fillingCameraService.findByid(
+          orderDetail.filligCamera,
+        );
+      } else {
+        const orderDetailFirst = await this.getFirstOrderDetailLast(
+          existOrder.id,
+        );
+        if (orderDetailFirst.length === 0) {
+          return { success: false, message: 'No order details found' };
+        }
+        orderDetail = new CreateOrderDetailDto();
+        existFillig = orderDetailFirst[0].filligcamera;
+        orderDetail.bolsa = orderDetailFirst[0].lotebolsa;
+        orderDetail.filligCamera = orderDetailFirst[0].filligcamera.id;
+      }
 
       if (existFillig) {
         let savedDetail = 0;
         let noSavedDetail = 0;
-        for (let i = 0; i < orderDetail.num_stickers; i++) {
+        const num_stickers = !created
+          ? orderDetail.num_stickers
+          : orderDetailMore.num_stickers;
+        for (let i = 0; i < num_stickers; i++) {
           try {
             const existDetailOrderWithDuration = await this.getOrderDetailLast(
               existOrder.id,
             );
             const numTambor = await this.generateNumTambor(existOrder.id);
-            console.log('NUM TAMBOR==>', numTambor[0]);
             const newOrderDetail = await this.orderDetailRepository.save({
               ...orderDetail,
               lote: this.obtainNumLote(
@@ -49,7 +71,8 @@ export class OrderDetailService {
                   existDetailOrderWithDuration.length - 1
                 ],
               ).toString(),
-              datefilling: i == 0 ? this.formatDateFilling(new Date()) : null,
+              datefilling:
+                !created && i == 0 ? this.formatDateFilling(new Date()) : null,
               filligcamera: existFillig,
               order: existOrder,
               lotebolsa: orderDetail.bolsa,
@@ -63,19 +86,47 @@ export class OrderDetailService {
                 existDetailOrderWithDuration.length == 0
                   ? null
                   : existDetailOrderWithDuration[0].duration,
-              status_tambor: 'SIN NOVEDAD',
+              status_tambor: 'CONFORME',
             });
-            if (i === 0) {
-              newOrderDetail.serial = await this.generateSerial(newOrderDetail);
-              delete newOrderDetail['dateFilling'];
-              delete newOrderDetail['filligCamera'];
-              delete newOrderDetail['num_stickers'];
-              delete newOrderDetail['bolsa'];
-              this.orderDetailRepository.update(
-                newOrderDetail.id,
+
+            newOrderDetail.serial = await this.generateSerial(newOrderDetail);
+            delete newOrderDetail['dateFilling'];
+            delete newOrderDetail['filligCamera'];
+            delete newOrderDetail['num_stickers'];
+            delete newOrderDetail['bolsa'];
+            this.orderDetailRepository.update(
+              newOrderDetail.id,
+              newOrderDetail,
+            );
+
+            if (created) {
+              const orderDetailLastToDate = await this.getOrderDetailLastToDate(
+                existOrder.id,
                 newOrderDetail,
               );
+
+              if (orderDetailLastToDate.length > 0) {
+                if (
+                  orderDetailLastToDate[orderDetailLastToDate.length - 1]
+                    .duration &&
+                  orderDetailLastToDate[orderDetailLastToDate.length - 1]
+                    .datefilling
+                ) {
+                  newOrderDetail.datefilling = this.calculateDateFilling(
+                    Number(
+                      orderDetailLastToDate[orderDetailLastToDate.length - 1]
+                        .duration,
+                    ),
+                    orderDetailLastToDate[orderDetailLastToDate.length - 1],
+                  );
+                  this.orderDetailRepository.update(
+                    newOrderDetail.id,
+                    newOrderDetail,
+                  );
+                }
+              }
             }
+
             savedDetail++;
           } catch (error) {
             console.log('ERROR===>', error);
@@ -172,15 +223,11 @@ export class OrderDetailService {
     );
 
     for (let orderDetail of filterUpdateOrderDetail) {
-      const orderDetailLast = await this.orderDetailRepository.find({
-        where: {
-          order: { id: existOrderDetails.order.id },
-          createdat: LessThan(orderDetail.createdat),
-          datefilling: Not(IsNull()),
-        },
-        order: { createdat: 'ASC' },
-      });
-      console.log('LAST ORDER DETAIL==>', orderDetailLast);
+      const orderDetailLast = await this.getOrderDetailLastToDate(
+        existOrderDetails.order.id,
+        orderDetail,
+      );
+
       orderDetail.datefilling = this.calculateDateFilling(
         durationDetail.duration,
         orderDetailLast[orderDetailLast.length - 1],
@@ -209,14 +256,41 @@ export class OrderDetailService {
     }
   }
 
+  async getOrderDetailLastToDate(
+    idOrder: string,
+    orderDetail: OrderDetail,
+  ): Promise<OrderDetail[]> {
+    const orderDetailLast = await this.orderDetailRepository.find({
+      where: {
+        order: { id: idOrder },
+        createdat: LessThan(orderDetail.createdat),
+        datefilling: Not(IsNull()),
+      },
+      order: { createdat: 'ASC' },
+    });
+    return orderDetailLast;
+  }
+
+  async getFirstOrderDetailLast(idOrder: string) {
+    try {
+      const details = await this.orderDetailRepository.find({
+        relations: ['order', 'filligcamera'],
+        where: { order: { id: idOrder } },
+      });
+      return details;
+    } catch (error) {
+      console.log('ERROR ACA GET ORDER DETAILS==>', error);
+    }
+  }
+
   //GENERAR SERIAL
   async generateSerial(orderDetail: OrderDetail) {
-    const dateData = new Date(orderDetail.datefilling);
+    const dateData = new Date(orderDetail.createdat);
     return (
-      dateData.getFullYear().toString() +
-      (dateData.getMonth() + 1).toString().padStart(2, '0') +
       dateData.getDate().toString().padStart(2, '0') +
-      orderDetail.order.numorder.toString() +
+      (dateData.getMonth() + 1).toString().padStart(2, '0') +
+      dateData.getFullYear().toString() +
+      orderDetail.order.numorder.toString().padStart(6, '0') +
       orderDetail.lote.toString() +
       orderDetail.numtambor
     );
@@ -248,7 +322,6 @@ export class OrderDetailService {
         relations: ['order'],
         where: { order: { id: idOrder } },
       });
-      console.log('DETAILS==>', ordersDetail);
       if (ordersDetail.length > 0) {
         try {
           for (let order of ordersDetail) {

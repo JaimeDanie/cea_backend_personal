@@ -11,17 +11,17 @@ export class CreateOrderDetailDto {
   @ApiProperty()
   @IsNumber()
   @Min(1)
-  readonly num_stickers: number;
+  num_stickers: number;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  readonly filligCamera: string;
+  filligCamera: string;
 
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  readonly bolsa: number;
+  bolsa: number;
 }
 
 export class DurationFillerDTO {
@@ -46,4 +46,11 @@ export class UpdateOrderDetailDTO {
   @IsString()
   @IsNotEmpty()
   readonly nonConformity: string;
+}
+
+export class CreateMoreOrderDetailDto {
+  @ApiProperty()
+  @IsNumber()
+  @Min(1)
+  readonly num_stickers: number;
 }

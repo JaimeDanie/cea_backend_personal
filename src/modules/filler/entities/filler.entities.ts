@@ -15,8 +15,4 @@ export class Filler {
 
   @Column({ nullable: false })
   filler: number;
-
-  @OneToOne(() => Tubular)
-  @JoinColumn({ name: 'tubullar', referencedColumnName: 'id' })
-  tubullar: Tubular;
 }

@@ -1,5 +1,6 @@
 import { ApiTags } from '@nestjs/swagger';
 import {
+  CreateMoreOrderDetailDto,
   CreateOrderDetailDto,
   DurationFillerDTO,
   UpdateOrderDetailDTO,
@@ -17,7 +18,11 @@ export class OrderDetailController {
     @Param('idOrder') idOrder: string,
     @Body() CreateOrderDetailDto: CreateOrderDetailDto,
   ) {
-    return this.orderDetailService.createDetail(idOrder, CreateOrderDetailDto);
+    return this.orderDetailService.createDetail(
+      idOrder,
+      CreateOrderDetailDto,
+      false,
+    );
   }
 
   //ADD DURATION SE CREA SERIAL
@@ -53,6 +58,19 @@ export class OrderDetailController {
     return this.orderDetailService.updateOrderDetail(
       idOrderDetail,
       orderDetailUpdate,
+    );
+  }
+
+  @Post('/moreOrderDetail/:idOrder')
+  createMoreOrderDetail(
+    @Param('idOrder') idOrder: string,
+    @Body() CreateOrderDetailDto: CreateMoreOrderDetailDto,
+  ) {
+    return this.orderDetailService.createDetail(
+      idOrder,
+      null,
+      true,
+      CreateOrderDetailDto,
     );
   }
 }
