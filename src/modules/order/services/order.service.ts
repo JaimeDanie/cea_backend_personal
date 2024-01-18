@@ -157,6 +157,6 @@ export class OrderService {
       .createQueryBuilder('orders')
       .select('MAX(orders.numorder)', 'max');
     const numorder = await ordersQuery.getRawOne();
-    return numorder.max;
+    return numorder.max + 1;
   }
 }
