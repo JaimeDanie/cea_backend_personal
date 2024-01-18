@@ -1,8 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsDateString,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Min,
 } from 'class-validator';
@@ -32,20 +33,17 @@ export class DurationFillerDTO {
 }
 
 export class UpdateOrderDetailDTO {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  readonly sello: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  readonly sello?: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  readonly weight: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  readonly weight?: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  readonly nonConformity: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  readonly nonConformity?: string;
 }
 
 export class CreateMoreOrderDetailDto {

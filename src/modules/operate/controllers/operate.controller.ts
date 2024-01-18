@@ -1,10 +1,13 @@
 import { OperateDto } from './../dtos/operate.dto';
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { OperateService } from '../services/operate.service';
 import { Operate } from '../entities/operate.entity';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
 @ApiTags('Operadores')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 @Controller('operate')
 export class OperateController {
   constructor(private operateService: OperateService) {}

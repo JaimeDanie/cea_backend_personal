@@ -6,13 +6,17 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from '../services/product.service';
 import { Product } from '../entities/product.entity';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ProductDto } from '../dto/product.entity';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
 @ApiTags('Productos')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 @Controller('product')
 export class ProductController {
   constructor(private productService: ProductService) {}

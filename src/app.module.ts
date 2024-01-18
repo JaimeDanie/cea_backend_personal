@@ -5,7 +5,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { SiteModule } from './modules/site/site.module';
 
 import { OrderModule } from './modules/order/order.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import appConfig from './config/app.config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ProductsModule } from './modules/products/products.module';
@@ -34,7 +34,6 @@ import { OperateModule } from './modules/operate/operate.module';
     DatabaseModule,
     UserModule,
     AuthModule,
-    // OrderModule, //comentado porque da error
     SiteModule,
     OrderModule,
     ProductsModule,

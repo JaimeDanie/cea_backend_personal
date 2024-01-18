@@ -246,7 +246,7 @@ export class OrderDetailService {
   async getOrderDetailLast(idOrder: string) {
     try {
       const details = await this.orderDetailRepository.find({
-        relations: ['order'],
+        relations: ['order', 'status'],
         where: { order: { id: idOrder } },
         order: { createdat: 'ASC' },
       });
@@ -355,29 +355,54 @@ export class OrderDetailService {
     if (!orderDetail) {
       return { success: false, mesage: 'order detail not found' };
     }
+    let nonConformityRestriction = null;
+    if (updateOrderDetail.nonConformity) {
+      nonConformityRestriction = await this.nonConformityService.getById(
+        updateOrderDetail.nonConformity,
+      );
 
-    const nonConformityRestriction = await this.nonConformityService.getById(
-      updateOrderDetail.nonConformity,
-    );
-
-    if (!nonConformityRestriction) {
-      return { success: false, mesage: 'status no allowed' };
+      if (!nonConformityRestriction) {
+        return { success: false, mesage: 'status no allowed' };
+      }
     }
 
-    orderDetail.sello = Number(updateOrderDetail.sello);
-    orderDetail.weight = Number(updateOrderDetail.weight);
+    orderDetail.sello = updateOrderDetail.sello
+      ? Number(updateOrderDetail.sello)
+      : null;
     orderDetail.status = nonConformityRestriction;
+    if (orderDetail.sello || orderDetail.status) {
+      const upgradeOrderDetail = await this.orderDetailRepository.update(
+        orderDetail.id,
+        orderDetail,
+      );
+    }
 
-    const upgradeOrderDetail = await this.orderDetailRepository.update(
-      orderDetail.id,
-      orderDetail,
-    );
+    if (updateOrderDetail.weight) {
+      //UPDATE WEIGHT ORDER DETAILS
+      const ordersToUpdateWeight = await this.getFirstOrderDetailLast(
+        orderDetail.order.id,
+      );
+
+      if (ordersToUpdateWeight.length > 0) {
+        if (
+          ordersToUpdateWeight.filter((orderD) => !orderD.weight).length ==
+          ordersToUpdateWeight.length
+        ) {
+          for (let orderDet of ordersToUpdateWeight) {
+            orderDet.weight = Number(updateOrderDetail.weight);
+            await this.orderDetailRepository.update(orderDet.id, orderDet);
+          }
+        }
+      }
+    }
+
     return { success: true, data: orderDetail };
   }
 
   //ORDER DETAIL BY ID
   async getByIdOrderDetail(id: string) {
     return await this.orderDetailRepository.findOne({
+      relations: ['order'],
       where: { id },
     });
   }

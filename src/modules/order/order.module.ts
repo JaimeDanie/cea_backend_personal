@@ -12,9 +12,11 @@ import { OrderDetailService } from './services/order-detail.service';
 import { FillingCameraModule } from '../filling-camera/filling-camera.module';
 import { OrderDetail } from './entities/order-detail.entity';
 import { NonConformityModule } from '../non-conformity/non-conformity.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     TypeOrmModule.forFeature([Order, OrderDetail]),
     ProductsModule,
     FillerModule,

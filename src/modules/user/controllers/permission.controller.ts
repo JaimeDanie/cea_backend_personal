@@ -6,10 +6,9 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateRoleDto } from '../dtos/createRole.dto';
-import { Role } from '../entities/role.entity';
-import { UpdateRoleDto } from '../dtos/updateRole.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { PermissionService } from '../services/permission.service';
 import { Permission } from '../entities/permission.entity';

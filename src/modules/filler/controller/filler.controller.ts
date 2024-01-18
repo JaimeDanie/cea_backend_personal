@@ -6,13 +6,17 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { FillerService } from '../services/filler.service';
 import { Filler } from '../entities/filler.entities';
 import { FillerDto } from '../dto/filler.dto';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
 @ApiTags('Llenadora')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 @Controller('filler')
 export class FillerController {
   constructor(private fillerService: FillerService) {}

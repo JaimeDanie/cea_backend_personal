@@ -1,4 +1,4 @@
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   CreateMoreOrderDetailDto,
   CreateOrderDetailDto,
@@ -6,9 +6,20 @@ import {
   UpdateOrderDetailDTO,
 } from '../dtos/create-order-detail.dto';
 import { OrderDetailService } from './../services/order-detail.service';
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
 @ApiTags('Order detail')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 @Controller('order-detail')
 export class OrderDetailController {
   constructor(private orderDetailService: OrderDetailService) {}

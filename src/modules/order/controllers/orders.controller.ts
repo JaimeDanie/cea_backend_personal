@@ -7,13 +7,17 @@ import {
   Patch,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { OrderService } from '../services/order.service';
 import { Order } from '../entities/order.entity';
 import { CreateOrderDto } from '../dtos/create.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
 @ApiTags('ordenes')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly orderService: OrderService) {}
