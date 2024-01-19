@@ -366,15 +366,16 @@ export class OrderDetailService {
       }
     }
 
+    orderDetail.novedad = updateOrderDetail.novedad
+      ? updateOrderDetail.novedad
+      : null;
+
     orderDetail.sello = updateOrderDetail.sello
       ? Number(updateOrderDetail.sello)
       : null;
     orderDetail.status = nonConformityRestriction;
-    if (orderDetail.sello || orderDetail.status) {
-      const upgradeOrderDetail = await this.orderDetailRepository.update(
-        orderDetail.id,
-        orderDetail,
-      );
+    if (orderDetail.sello || orderDetail.status || orderDetail.novedad) {
+      await this.orderDetailRepository.update(orderDetail.id, orderDetail);
     }
 
     if (updateOrderDetail.weight) {

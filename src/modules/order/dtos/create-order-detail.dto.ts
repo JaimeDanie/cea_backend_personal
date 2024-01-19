@@ -44,6 +44,10 @@ export class UpdateOrderDetailDTO {
   @ApiPropertyOptional()
   @IsOptional()
   readonly nonConformity?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  readonly novedad?: string;
 }
 
 export class CreateMoreOrderDetailDto {
