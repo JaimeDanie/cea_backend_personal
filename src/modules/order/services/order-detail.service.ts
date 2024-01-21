@@ -11,6 +11,7 @@ import {
   DurationFillerDTO,
   UpdateOrderDetailDTO,
 } from '../dtos/create-order-detail.dto';
+import { NonConformityEnum } from 'src/modules/non-conformity/dtos/non-conformity.dto';
 
 @Injectable()
 export class OrderDetailService {
@@ -87,6 +88,9 @@ export class OrderDetailService {
                   ? null
                   : existDetailOrderWithDuration[0].duration,
               status_tambor: 'CONFORME',
+              status: await this.nonConformityService.getByName({
+                name: NonConformityEnum.CONFORME,
+              }),
             });
 
             newOrderDetail.serial = await this.generateSerial(newOrderDetail);
