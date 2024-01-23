@@ -372,12 +372,20 @@ export class OrderDetailService {
 
     orderDetail.novedad = updateOrderDetail.novedad
       ? updateOrderDetail.novedad
+      : orderDetail.novedad
+      ? orderDetail.novedad
       : null;
 
     orderDetail.sello = updateOrderDetail.sello
       ? Number(updateOrderDetail.sello)
+      : orderDetail.sello
+      ? orderDetail.sello
       : null;
-    orderDetail.status = nonConformityRestriction;
+    orderDetail.status = nonConformityRestriction
+      ? nonConformityRestriction
+      : orderDetail.status
+      ? orderDetail.status
+      : null;
     if (orderDetail.sello || orderDetail.status || orderDetail.novedad) {
       await this.orderDetailRepository.update(orderDetail.id, orderDetail);
     }
@@ -407,7 +415,7 @@ export class OrderDetailService {
   //ORDER DETAIL BY ID
   async getByIdOrderDetail(id: string) {
     return await this.orderDetailRepository.findOne({
-      relations: ['order'],
+      relations: ['order', 'status'],
       where: { id },
     });
   }
