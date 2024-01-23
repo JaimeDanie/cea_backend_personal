@@ -250,7 +250,7 @@ export class OrderDetailService {
   async getOrderDetailLast(idOrder: string) {
     try {
       const details = await this.orderDetailRepository.find({
-        relations: ['order', 'status'],
+        relations: ['order', 'status', 'order.product'],
         where: { order: { id: idOrder } },
         order: { createdat: 'ASC' },
       });

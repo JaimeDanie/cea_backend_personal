@@ -91,6 +91,14 @@ export class OrderService {
       where: { saporder: orderData.saporder },
     });
 
+    const existingOrderUpdate: Order = await this.orderRepository.findOne({
+      where: { id: idOrder },
+    });
+
+    if (!existingOrderUpdate) {
+      return null;
+    }
+
     if (existingOrder) {
       console.log('EXIST SAP ORDER');
       return null;
