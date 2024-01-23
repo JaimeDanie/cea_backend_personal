@@ -99,7 +99,7 @@ export class OrderService {
       return null;
     }
 
-    if (existingOrder) {
+    if (existingOrder.id != idOrder) {
       console.log('EXIST SAP ORDER');
       return null;
     }
