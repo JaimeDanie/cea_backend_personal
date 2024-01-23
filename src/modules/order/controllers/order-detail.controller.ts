@@ -84,4 +84,9 @@ export class OrderDetailController {
       CreateOrderDetailDto,
     );
   }
+  //PRINT SERIALES CODIGO DE BARRAS
+  @Put('/updatePrint/:idOrderDetail')
+  printUpdate(@Param('idOrderDetail') idOrderDetail: string) {
+    return this.orderDetailService.updatePrint(idOrderDetail);
+  }
 }

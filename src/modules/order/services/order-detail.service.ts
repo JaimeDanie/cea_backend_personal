@@ -87,9 +87,9 @@ export class OrderDetailService {
                 existDetailOrderWithDuration.length == 0
                   ? null
                   : existDetailOrderWithDuration[0].duration,
-              status_tambor: 'CONFORME',
+              status_tambor: 'LLENADO',
               status: await this.nonConformityService.getByName({
-                name: NonConformityEnum.CONFORME,
+                name: NonConformityEnum.LLENADO,
               }),
             });
 
@@ -418,5 +418,16 @@ export class OrderDetailService {
       relations: ['order', 'status'],
       where: { id },
     });
+  }
+
+  async updatePrint(id: string) {
+    const orderDetail = await this.getByIdOrderDetail(id);
+    if (orderDetail) {
+      orderDetail.print = 1;
+      await this.orderDetailRepository.update(id, orderDetail);
+      return { success: true, data: orderDetail };
+    } else {
+      return { success: false, message: 'no updated order detail print' };
+    }
   }
 }

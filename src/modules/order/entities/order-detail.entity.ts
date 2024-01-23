@@ -55,6 +55,9 @@ export class OrderDetail {
   @UpdateDateColumn()
   updatedat: Date;
 
+  @Column({ nullable: false, default: 0 })
+  print: number;
+
   @ManyToOne(() => FillingCamera)
   @JoinColumn({ name: 'filligcamera', referencedColumnName: 'id' })
   filligcamera: FillingCamera;

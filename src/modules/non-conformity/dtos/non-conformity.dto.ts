@@ -6,6 +6,7 @@ export enum NonConformityEnum {
   REPROCESO = 'Reproceso',
   REPROCESO_INMEDIATO = 'Reproceso inmediato',
   DAÑO_TAMBOR = 'Daño tambor',
+  LLENADO = 'Llenado',
 }
 export class NonConformityDto {
   @IsEnum(NonConformityEnum)
