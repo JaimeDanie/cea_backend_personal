@@ -123,6 +123,9 @@ export class OrderDetailService {
                     ),
                     orderDetailLastToDate[orderDetailLastToDate.length - 1],
                   );
+                  newOrderDetail.weight =
+                    orderDetailLastToDate[orderDetailLastToDate.length - 1]
+                      .weight || null;
                   this.orderDetailRepository.update(
                     newOrderDetail.id,
                     newOrderDetail,
@@ -428,6 +431,56 @@ export class OrderDetailService {
       return { success: true, data: orderDetail };
     } else {
       return { success: false, message: 'no updated order detail print' };
+    }
+  }
+
+  async closingShift(idOrder: string) {
+    const existOrder = await this.orderRepository.findOne({
+      where: { id: idOrder },
+    });
+    if (!existOrder) {
+      return { success: false, message: 'Order not found' };
+    }
+    const orderDetails = await this.getOrderDetailLast(idOrder);
+    if (orderDetails.length == 0) {
+      return { success: false, message: 'Order details not founds' };
+    }
+
+    const orderDetailsNoFinish = [];
+
+    orderDetails.map((orderDetail) => {
+      let orderDetalValid = {};
+      orderDetalValid['id'] = orderDetail.id;
+      orderDetalValid['datefilling'] = !orderDetail.datefilling ? false : true;
+
+      orderDetalValid['duration'] = !orderDetail.duration ? false : true;
+
+      orderDetalValid['sello'] = !orderDetail.sello ? false : true;
+
+      orderDetalValid['bolsa'] = !orderDetail.lotebolsa ? false : true;
+
+      orderDetalValid['weight'] = !orderDetail.weight ? false : true;
+
+      orderDetalValid['status'] =
+        orderDetail.status?.name === NonConformityEnum.LLENADO ? false : true;
+
+      if (
+        Object.values(orderDetalValid).filter((valid) => valid === false)
+          .length > 0
+      ) {
+        orderDetailsNoFinish.push(orderDetalValid);
+      }
+    });
+    if (orderDetailsNoFinish.length === 0) {
+      existOrder.shiftclosing = 1;
+      await this.orderRepository.update(existOrder.id, existOrder);
+      return { success: true, message: 'shift closing successfully' };
+    } else {
+      return {
+        success: false,
+        message: 'shift closing error',
+        data: orderDetailsNoFinish,
+      };
     }
   }
 }

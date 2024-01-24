@@ -26,6 +26,9 @@ export class Order {
   @Column({ nullable: true })
   numorder?: number;
 
+  @Column({ nullable: false, default: 0 })
+  shiftclosing?: number;
+
   @ManyToOne(() => Product)
   @JoinColumn({ name: 'product', referencedColumnName: 'code' })
   product: Product;

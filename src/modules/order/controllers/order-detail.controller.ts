@@ -89,4 +89,10 @@ export class OrderDetailController {
   printUpdate(@Param('idOrderDetail') idOrderDetail: string) {
     return this.orderDetailService.updatePrint(idOrderDetail);
   }
+
+  //CIERRE DE TURNO POR ORDEN
+  // @Post('/shiftclosing/:idOrder')
+  // shiftClosing(@Param('idOrder') idOrder: string) {
+  //   return this.orderDetailService.closingShift(idOrder);
+  // }
 }
