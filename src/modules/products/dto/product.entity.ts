@@ -10,4 +10,9 @@ export class ProductDto {
   @ApiProperty()
   @IsNotEmpty()
   name: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumberString()
+  characteristiclote: string;
 }

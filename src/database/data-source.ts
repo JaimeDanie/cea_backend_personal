@@ -11,6 +11,7 @@ import { FillingCamera } from 'src/modules/filling-camera/entities/filling-camer
 import { NonConformity } from 'src/modules/non-conformity/entities/NonConformity.entity';
 import { Operate } from 'src/modules/operate/entities/operate.entity';
 import { OrderDetail } from 'src/modules/order/entities/order-detail.entity';
+import { OrderConfig } from 'src/modules/order/entities/order-config-lote.entity';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ export const AppDataSource = new DataSource({
     NonConformity,
     Operate,
     OrderDetail,
+    OrderConfig,
   ],
   migrations: ['src/config/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',

@@ -14,10 +14,14 @@ import { OrderDetail } from './entities/order-detail.entity';
 import { NonConformityModule } from '../non-conformity/non-conformity.module';
 import { AuthModule } from '../auth/auth.module';
 
+import { OrderConfigService } from './services/order-config.service';
+import { OrderConfigController } from './controllers/order-config.controller';
+import { OrderConfig } from './entities/order-config-lote.entity';
+
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([Order, OrderDetail]),
+    TypeOrmModule.forFeature([Order, OrderDetail, OrderConfig]),
     ProductsModule,
     FillerModule,
     TubularModule,
@@ -25,8 +29,8 @@ import { AuthModule } from '../auth/auth.module';
     FillingCameraModule,
     NonConformityModule,
   ],
-  controllers: [OrdersController, OrderDetailController],
-  providers: [OrderService, OrderDetailService],
+  controllers: [OrdersController, OrderDetailController, OrderConfigController],
+  providers: [OrderService, OrderDetailService, OrderConfigService],
   exports: [OrderService],
 })
 export class OrderModule {}

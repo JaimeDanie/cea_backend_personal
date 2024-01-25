@@ -1,3 +1,4 @@
+import { OrderConfig } from './src/modules/order/entities/order-config-lote.entity';
 import { OrderDetail } from './src/modules/order/entities/order-detail.entity';
 import { Operate } from './src/modules/operate/entities/operate.entity';
 import { NonConformity } from './src/modules/non-conformity/entities/NonConformity.entity';
@@ -37,6 +38,7 @@ export const AppDataSource = new DataSource({
     NonConformity,
     Operate,
     OrderDetail,
+    OrderConfig,
   ],
   migrations: ['./src/database/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',

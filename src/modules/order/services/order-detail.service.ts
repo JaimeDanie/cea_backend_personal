@@ -35,6 +35,9 @@ export class OrderDetailService {
       where: { id: idOrder },
     });
     if (existOrder) {
+      if (existOrder.shiftclosing === 1) {
+        return { success: false, message: 'order closing no created' };
+      }
       let existFillig = null;
       if (!created) {
         existFillig = await this.fillingCameraService.findByid(
@@ -192,6 +195,9 @@ export class OrderDetailService {
 
     if (!existOrderDetails) {
       return { success: false, message: 'orderDetail no exist' };
+    }
+    if (existOrderDetails.order.shiftclosing === 1) {
+      return { success: false, message: 'order closing no updated' };
     }
 
     const orderDetailCalculateLLenado = await this.orderDetailRepository.find({
@@ -362,6 +368,10 @@ export class OrderDetailService {
     if (!orderDetail) {
       return { success: false, mesage: 'order detail not found' };
     }
+    if (orderDetail.order.shiftclosing === 1) {
+      return { success: false, message: 'order closing no updated' };
+    }
+
     let nonConformityRestriction = null;
     if (updateOrderDetail.nonConformity) {
       nonConformityRestriction = await this.nonConformityService.getById(
@@ -426,6 +436,10 @@ export class OrderDetailService {
   async updatePrint(id: string) {
     const orderDetail = await this.getByIdOrderDetail(id);
     if (orderDetail) {
+      if (orderDetail.order.shiftclosing === 1) {
+        return { success: false, message: 'order closing, no updated print' };
+      }
+
       orderDetail.print = 1;
       await this.orderDetailRepository.update(id, orderDetail);
       return { success: true, data: orderDetail };
@@ -460,9 +474,6 @@ export class OrderDetailService {
       orderDetalValid['bolsa'] = !orderDetail.lotebolsa ? false : true;
 
       orderDetalValid['weight'] = !orderDetail.weight ? false : true;
-
-      orderDetalValid['status'] =
-        orderDetail.status?.name === NonConformityEnum.LLENADO ? false : true;
 
       if (
         Object.values(orderDetalValid).filter((valid) => valid === false)

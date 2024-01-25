@@ -7,4 +7,7 @@ export class Product {
 
   @Column({ nullable: false })
   name: string;
+
+  @Column({ nullable: true })
+  characteristiclote?: string;
 }
