@@ -91,8 +91,8 @@ export class OrderDetailController {
   }
 
   //CIERRE DE TURNO POR ORDEN
-  // @Post('/shiftclosing/:idOrder')
-  // shiftClosing(@Param('idOrder') idOrder: string) {
-  //   return this.orderDetailService.closingShift(idOrder);
-  // }
+  @Post('/shiftclosing/:idOrder')
+  shiftClosing(@Param('idOrder') idOrder: string) {
+    return this.orderDetailService.closingShift(idOrder);
+  }
 }
