@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumberString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumberString, IsOptional } from 'class-validator';
 
 export class ProductDto {
   @ApiProperty()
@@ -15,4 +15,20 @@ export class ProductDto {
   @IsNotEmpty()
   @IsNumberString()
   characteristiclote: string;
+}
+
+export class UpdateProductDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiPropertyOptional()
+  @IsNotEmpty()
+  @IsNumberString()
+  code: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumberString()
+  characteristiclote?: string;
 }

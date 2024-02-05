@@ -167,4 +167,11 @@ export class OrderService {
     const numorder = await ordersQuery.getRawOne();
     return numorder.max + 1;
   }
+
+  async getDetailsByProduct(codeProduct: string) {
+    return this.orderRepository.find({
+      relations: ['product'],
+      where: { product: { code: codeProduct } },
+    });
+  }
 }

@@ -11,7 +11,7 @@ import {
 import { ProductService } from '../services/product.service';
 import { Product } from '../entities/product.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ProductDto } from '../dto/product.entity';
+import { ProductDto, UpdateProductDto } from '../dto/product.entity';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
 @ApiTags('Productos')
@@ -37,7 +37,10 @@ export class ProductController {
   }
 
   @Put(':code')
-  updateProduct(@Param('code') code: string, @Body() product: ProductDto) {
+  updateProduct(
+    @Param('code') code: string,
+    @Body() product: UpdateProductDto,
+  ) {
     return this.productService.updateProduct(code, product);
   }
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { OrderService } from './services/order.service';
@@ -22,7 +22,7 @@ import { OrderConfig } from './entities/order-config-lote.entity';
   imports: [
     AuthModule,
     TypeOrmModule.forFeature([Order, OrderDetail, OrderConfig]),
-    ProductsModule,
+    forwardRef(() => ProductsModule),
     FillerModule,
     TubularModule,
     OperateModule,

@@ -43,12 +43,6 @@ export class OrderDetail {
   @Column({ nullable: true })
   novedad?: string;
 
-  @Column({ nullable: false })
-  status_tambor: string;
-
-  @Column({ nullable: true })
-  novedad_tambor?: string;
-
   @CreateDateColumn()
   createdat: Date;
 

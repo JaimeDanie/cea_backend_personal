@@ -12,6 +12,7 @@ import {
   UpdateOrderDetailDTO,
 } from '../dtos/create-order-detail.dto';
 import { NonConformityEnum } from 'src/modules/non-conformity/dtos/non-conformity.dto';
+import { OrderConfigService } from './order-config.service';
 
 @Injectable()
 export class OrderDetailService {
@@ -22,6 +23,7 @@ export class OrderDetailService {
     private readonly orderDetailRepository: Repository<OrderDetail>,
     private readonly fillingCameraService: FilligCameraService,
     private readonly nonConformityService: NonConformityService,
+    private readonly orderConfigService: OrderConfigService,
   ) {}
 
   // CREAR ORDER DETAILS
@@ -33,12 +35,15 @@ export class OrderDetailService {
   ) {
     const existOrder = await this.orderRepository.findOne({
       where: { id: idOrder },
+      relations: ['product'],
     });
     if (existOrder) {
       if (existOrder.shiftclosing === 1) {
         return { success: false, message: 'order closing no created' };
       }
       let existFillig = null;
+      //INSERTAR CONFIG INICIAL
+      const existDetails = await this.getOrderDetailTotal();
       if (!created) {
         existFillig = await this.fillingCameraService.findByid(
           orderDetail.filligCamera,
@@ -67,30 +72,27 @@ export class OrderDetailService {
             const existDetailOrderWithDuration = await this.getOrderDetailLast(
               existOrder.id,
             );
-            const numTambor = await this.generateNumTambor(existOrder.id);
             const newOrderDetail = await this.orderDetailRepository.save({
               ...orderDetail,
-              lote: this.obtainNumLote(
-                existDetailOrderWithDuration[
-                  existDetailOrderWithDuration.length - 1
-                ],
+              lote: (
+                await this.obtainNumLote(
+                  existDetailOrderWithDuration[
+                    existDetailOrderWithDuration.length - 1
+                  ],
+                  existOrder,
+                  existDetails,
+                )
               ).toString(),
               datefilling:
                 !created && i == 0 ? this.formatDateFilling(new Date()) : null,
               filligcamera: existFillig,
               order: existOrder,
               lotebolsa: orderDetail.bolsa,
-              numtambor:
-                numTambor.length === 0
-                  ? 1
-                  : numTambor[0].numtambor === 24
-                  ? 1
-                  : +numTambor[0].numtambor + 1,
+              numtambor: await this.obtainTambor(),
               duration:
                 existDetailOrderWithDuration.length == 0
                   ? null
                   : existDetailOrderWithDuration[0].duration,
-              status_tambor: 'LLENADO',
               status: await this.nonConformityService.getByName({
                 name: NonConformityEnum.LLENADO,
               }),
@@ -175,12 +177,77 @@ export class OrderDetailService {
     );
   }
 
-  obtainNumLote(existDetailOrderWithDuration: OrderDetail) {
-    return existDetailOrderWithDuration?.numtambor
-      ? existDetailOrderWithDuration?.numtambor < 24
-        ? existDetailOrderWithDuration.lote
-        : +existDetailOrderWithDuration.lote + 1
-      : 1;
+  // FUNCIONALIDAD DE UNICO LOTE
+  async obtainNumLote(
+    existDetailOrderWithDuration: OrderDetail,
+    existOrder: Order,
+    orderDetails: OrderDetail[],
+  ) {
+    const numLoteTotal = await this.obtainLote(orderDetails);
+    const numLoteOrder = await this.obtainLoteByOrder(existOrder.id);
+    const loteCount = await this.obtainCountByLote(numLoteOrder.toString());
+    if (!existDetailOrderWithDuration) {
+      return +numLoteTotal + 1;
+    }
+    if (
+      existOrder.product.code !==
+        existDetailOrderWithDuration.order.product.code &&
+      loteCount == Number(existOrder.product.characteristiclote)
+    ) {
+      return +numLoteTotal + 1;
+    } else if (
+      existOrder.product.code ===
+      existDetailOrderWithDuration.order.product.code
+    ) {
+      if (loteCount < Number(existOrder.product.characteristiclote)) {
+        return numLoteOrder;
+      } else {
+        return +numLoteTotal + 1;
+      }
+    }
+  }
+
+  async obtainCountByLote(lote: string) {
+    const obtainCountLote = await this.orderDetailRepository.find({
+      where: { lote },
+    });
+    return obtainCountLote.length;
+  }
+  //GENERAR NUMERO DE TAMBOR UNICO
+  async obtainTambor() {
+    const obtainNewNumberTambor = await this.orderDetailRepository
+      .createQueryBuilder('orderdetail')
+      .select('MAX(orderdetail.numtambor)', 'max')
+      .getRawOne();
+
+    return obtainNewNumberTambor.max + 1;
+  }
+  //GENERAR NUMERO DE LOTE UNICO
+  async obtainLote(orderDetails: OrderDetail[]) {
+    const obtainNewNumberLote = await this.orderDetailRepository
+      .createQueryBuilder('orderdetail')
+      .select('MAX(orderdetail.lote)', 'max')
+      .getRawOne();
+
+    let newLote = 0;
+    if (orderDetails.length === 0) {
+      newLote =
+        +(await this.orderConfigService.getCurrentLote()).data.loteinitial - 1;
+    } else {
+      newLote = obtainNewNumberLote.max;
+    }
+
+    return newLote;
+  }
+
+  //OBTENER LOTES POR ORDEN
+  async obtainLoteByOrder(idOrder: string) {
+    const obtainNewNumberLote = await this.orderDetailRepository.find({
+      where: { order: { id: idOrder } },
+      order: { lote: 'DESC' },
+    });
+
+    return +obtainNewNumberLote.length > 0 ? obtainNewNumberLote[0].lote : 1;
   }
 
   //UPDATE DURATION
@@ -269,6 +336,17 @@ export class OrderDetailService {
     }
   }
 
+  async getOrderDetailTotal() {
+    try {
+      const details = await this.orderDetailRepository.find({
+        order: { createdat: 'ASC' },
+      });
+      return details;
+    } catch (error) {
+      console.log('ERROR ACA GET ORDER DETAILS==>', error);
+    }
+  }
+
   async getOrderDetailLastToDate(
     idOrder: string,
     orderDetail: OrderDetail,
@@ -300,12 +378,8 @@ export class OrderDetailService {
   async generateSerial(orderDetail: OrderDetail) {
     const dateData = new Date(orderDetail.createdat);
     return (
-      dateData.getDate().toString().padStart(2, '0') +
-      (dateData.getMonth() + 1).toString().padStart(2, '0') +
       dateData.getFullYear().toString() +
-      orderDetail.order.numorder.toString().padStart(6, '0') +
-      orderDetail.lote.toString() +
-      orderDetail.numtambor
+      orderDetail.numtambor.toString().padStart(6, '0')
     );
   }
 
