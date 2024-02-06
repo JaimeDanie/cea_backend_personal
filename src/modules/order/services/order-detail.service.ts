@@ -135,6 +135,14 @@ export class OrderDetailService {
                     newOrderDetail.id,
                     newOrderDetail,
                   );
+                } else {
+                  newOrderDetail.weight =
+                    orderDetailLastToDate[orderDetailLastToDate.length - 1]
+                      .weight || null;
+                  this.orderDetailRepository.update(
+                    newOrderDetail.id,
+                    newOrderDetail,
+                  );
                 }
               }
             }
