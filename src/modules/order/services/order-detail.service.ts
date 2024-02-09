@@ -25,12 +25,13 @@ export class OrderDetailService {
     private readonly nonConformityService: NonConformityService,
     private readonly orderConfigService: OrderConfigService,
   ) {}
-  formatter = new Intl.DateTimeFormat('az', {
+  formatter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
+    second: '2-digit',
     timeZone: 'America/Bogota',
   });
 
@@ -194,7 +195,6 @@ export class OrderDetailService {
       min.toString().padStart(2, '0') +
       ':' +
       seg.toString().padStart(2, '0');
-    //console.log('FECHA LLENADO==>', newDate);
     return newDate;
   }
 
