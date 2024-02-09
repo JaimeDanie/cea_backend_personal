@@ -25,6 +25,14 @@ export class OrderDetailService {
     private readonly nonConformityService: NonConformityService,
     private readonly orderConfigService: OrderConfigService,
   ) {}
+  formatter = new Intl.DateTimeFormat('az', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'America/Bogota',
+  });
 
   // CREAR ORDER DETAILS
   async createDetail(
@@ -84,7 +92,11 @@ export class OrderDetailService {
                 )
               ).toString(),
               datefilling:
-                !created && i == 0 ? this.formatDateFilling(new Date()) : null,
+                !created && i == 0
+                  ? this.formatDateFilling(
+                      new Date(this.formatter.format(new Date())),
+                    )
+                  : null,
               filligcamera: existFillig,
               order: existOrder,
               lotebolsa: orderDetail.bolsa,
@@ -170,7 +182,7 @@ export class OrderDetailService {
     const min = date.getMinutes();
     const seg = date.getSeconds();
 
-    return (
+    const newDate =
       anio +
       '-' +
       month.toString().padStart(2, '0') +
@@ -181,8 +193,9 @@ export class OrderDetailService {
       ':' +
       min.toString().padStart(2, '0') +
       ':' +
-      seg.toString().padStart(2, '0')
-    );
+      seg.toString().padStart(2, '0');
+    //console.log('FECHA LLENADO==>', newDate);
+    return newDate;
   }
 
   // FUNCIONALIDAD DE UNICO LOTE
@@ -370,10 +383,11 @@ export class OrderDetailService {
     return orderDetailLast;
   }
 
+  //OBTENER ORDER DETAIL CON RELACIONES
   async getFirstOrderDetailLast(idOrder: string) {
     try {
       const details = await this.orderDetailRepository.find({
-        relations: ['order', 'filligcamera'],
+        relations: ['order', 'filligcamera', 'status'],
         where: { order: { id: idOrder } },
       });
       return details;
@@ -384,6 +398,14 @@ export class OrderDetailService {
 
   //GENERAR SERIAL
   async generateSerial(orderDetail: OrderDetail) {
+    const orderShiftClosing = await this.obtainOrderShiftClosing();
+    let availableSeriales = [];
+    if (orderShiftClosing.length > 0) {
+      availableSeriales = await this.obtainSerialesAvailable(orderShiftClosing);
+    }
+    if (availableSeriales.length > 0) {
+      return availableSeriales[0];
+    }
     const dateData = new Date(orderDetail.createdat);
     return (
       dateData.getFullYear().toString() +
@@ -391,10 +413,11 @@ export class OrderDetailService {
     );
   }
 
+  // CALCULAR FECHA DE LLENADO
   calculateDateFilling(seconds: number, orderDetail: OrderDetail) {
     const dateFilling = orderDetail.datefilling
       ? new Date(orderDetail.datefilling)
-      : new Date();
+      : new Date(this.formatter.format(new Date()));
     const newDate = new Date(
       dateFilling.setSeconds(dateFilling.getSeconds() + seconds),
     );
@@ -574,6 +597,91 @@ export class OrderDetailService {
         message: 'shift closing error',
         data: orderDetailsNoFinish,
       };
+    }
+  }
+
+  async obtainOrderShiftClosing() {
+    const orderShiftClosing = await this.orderRepository.find({
+      where: { shiftclosing: 1 },
+      order: { createdAt: 'ASC' },
+    });
+    return orderShiftClosing;
+  }
+
+  async obtainSerialesAvailable(ordersShiftClosing: Order[]) {
+    const serialesAvailable = [];
+    for (let order of ordersShiftClosing) {
+      const ordeDetailByOrder = await this.getOrderDetailsOrderByCreatedAt(
+        order.id,
+      );
+      if (ordeDetailByOrder.length > 0) {
+        for (let orderDetail of ordeDetailByOrder) {
+          const available = await this.obtainSerialReutilizado(
+            orderDetail.serial,
+          );
+          if (available) {
+            //console.log('SERIAL NO REUTILIZADO', orderDetail.serial);
+            serialesAvailable.push(orderDetail.serial);
+          }
+        }
+      }
+    }
+    // console.log('SERIALES DISPONIBLES==>', serialesAvailable);
+    return serialesAvailable;
+  }
+
+  async obtainSerialReutilizado(serial: string) {
+    //console.log('SERIAL A BUSCAR==>', serial);
+    const existSerialAvailable = await this.orderDetailRepository.find({
+      relations: ['status', 'order'],
+      where: {
+        serial: serial,
+        order: { shiftclosing: 1 },
+        status: { name: NonConformityEnum.LLENADO },
+      },
+    });
+
+    const existSerialInOrder = await this.orderDetailRepository.find({
+      relations: ['status', 'order'],
+      where: {
+        serial: serial,
+        order: { shiftclosing: 0 },
+        status: { name: NonConformityEnum.LLENADO },
+      },
+    });
+
+    const existSerialCerrado = await this.orderDetailRepository.find({
+      relations: ['status', 'order'],
+      where: {
+        serial: serial,
+        order: { shiftclosing: 1 },
+        status: { name: Not(NonConformityEnum.LLENADO) },
+      },
+    });
+
+    // console.log('EN ORDEN ABIERTA==>', existSerialInOrder.length);
+    // console.log('EN ORDEN CERRADA==>', existSerialAvailable.length);
+    // console.log('------------------------------------------------');
+    return (
+      existSerialAvailable.length > 0 &&
+      existSerialInOrder.length === 0 &&
+      existSerialCerrado.length === 0
+    );
+  }
+
+  //OBTENER ORDER DETAIL CON RELACIONES
+  async getOrderDetailsOrderByCreatedAt(idOrder: string) {
+    try {
+      const details = await this.orderDetailRepository.find({
+        where: {
+          order: { id: idOrder },
+          status: { name: NonConformityEnum.LLENADO },
+        },
+        order: { createdat: 'ASC' },
+      });
+      return details;
+    } catch (error) {
+      console.log('ERROR ACA GET ORDER DETAILS==>', error);
     }
   }
 }
