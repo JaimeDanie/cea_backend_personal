@@ -684,4 +684,25 @@ export class OrderDetailService {
       console.log('ERROR ACA GET ORDER DETAILS==>', error);
     }
   }
+
+  async getOrderAndDetail(idOrder: string) {
+    try {
+      const orderData = await this.orderRepository.findOne({
+        relations: ['product'],
+        where: { id: idOrder },
+      });
+      if (orderData) {
+        const details = await this.orderDetailRepository.find({
+          relations: ['status'],
+          where: { order: { id: idOrder } },
+          order: { createdat: 'ASC' },
+        });
+        return { success: true, order: orderData, details };
+      } else {
+        return { success: false, message: 'order not found' };
+      }
+    } catch (error) {
+      return { success: false, message: 'order not found.' };
+    }
+  }
 }

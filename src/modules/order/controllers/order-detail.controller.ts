@@ -52,7 +52,7 @@ export class OrderDetailController {
   // DETAILS BY ORDER
   @Get(':idOrder')
   OrderDetailByOrder(@Param('idOrder') idOrder: string) {
-    return this.orderDetailService.getOrderDetailLast(idOrder);
+    return this.orderDetailService.getOrderAndDetail(idOrder);
   }
   // UPDATE DE NUM TAMBORES
   // @Put('numtambor/:idOrder')
