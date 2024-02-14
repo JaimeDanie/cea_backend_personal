@@ -48,6 +48,10 @@ export class UpdateOrderDetailDTO {
   @ApiPropertyOptional()
   @IsOptional()
   readonly novedad?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  readonly lotebolsa?: string;
 }
 
 export class CreateMoreOrderDetailDto {

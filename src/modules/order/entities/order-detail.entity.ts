@@ -37,7 +37,7 @@ export class OrderDetail {
   @Column({ nullable: true })
   lotebolsa?: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal', precision: 7, scale: 2 })
   weight?: number;
 
   @Column({ nullable: true })

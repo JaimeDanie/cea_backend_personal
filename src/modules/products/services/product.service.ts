@@ -45,11 +45,22 @@ export class ProductService {
     return null;
   }
 
-  async deleteProduct(code: string): Promise<Product> {
-    const productFind = await this.getProduct(code);
-    if (productFind) {
-      this.productRepository.delete(code);
+  async deleteProduct(code: string): Promise<any> {
+    try {
+      const productFind = await this.getProduct(code);
+      if (productFind) {
+        await this.productRepository.delete(code);
+        return { success: true, message: 'Producto eliminado correctamente' };
+      }
+      return {
+        success: false,
+        message: 'El producto que desea eliminar no existe',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'El producto no se puede eliminar ya contiene ordenes',
+      };
     }
-    return null;
   }
 }

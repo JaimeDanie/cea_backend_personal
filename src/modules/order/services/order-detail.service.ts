@@ -3,7 +3,7 @@ import { FilligCameraService } from './../../filling-camera/services/fillig-came
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from '../entities/order.entity';
-import { IsNull, LessThan, Not, Repository } from 'typeorm';
+import { IsNull, LessThan, MoreThan, Not, Repository } from 'typeorm';
 import { OrderDetail } from '../entities/order-detail.entity';
 import {
   CreateMoreOrderDetailDto,
@@ -382,6 +382,20 @@ export class OrderDetailService {
     });
     return orderDetailLast;
   }
+  //OBTENER DETAILS SUPERIORES A LA FECHA
+  async getOrderDetailAfterToDate(
+    idOrder: string,
+    orderDetail: OrderDetail,
+  ): Promise<OrderDetail[]> {
+    const orderDetailLast = await this.orderDetailRepository.find({
+      where: {
+        order: { id: idOrder },
+        createdat: MoreThan(orderDetail.createdat),
+      },
+      order: { createdat: 'ASC' },
+    });
+    return orderDetailLast;
+  }
 
   //OBTENER ORDER DETAIL CON RELACIONES
   async getFirstOrderDetailLast(idOrder: string) {
@@ -522,6 +536,57 @@ export class OrderDetailService {
           for (let orderDet of ordersToUpdateWeight) {
             orderDet.weight = Number(updateOrderDetail.weight);
             await this.orderDetailRepository.update(orderDet.id, orderDet);
+          }
+        } else {
+          const dataAfter = await this.getOrderDetailAfterToDate(
+            orderDetail.order.id,
+            orderDetail,
+          );
+          if (dataAfter.length > 0) {
+            orderDetail.weight = Number(updateOrderDetail.weight);
+            await this.orderDetailRepository.update(
+              orderDetail.id,
+              orderDetail,
+            );
+            for (let orderDet of dataAfter) {
+              orderDet.weight = Number(updateOrderDetail.weight);
+              await this.orderDetailRepository.update(orderDet.id, orderDet);
+            }
+          }
+        }
+      }
+    }
+
+    if (updateOrderDetail.lotebolsa) {
+      //UPDATE LOTE BOLSA ORDER DETAILS
+      const ordersToUpdateWeight = await this.getFirstOrderDetailLast(
+        orderDetail.order.id,
+      );
+
+      if (ordersToUpdateWeight.length > 0) {
+        if (
+          ordersToUpdateWeight.filter((orderD) => !orderD.lotebolsa).length ==
+          ordersToUpdateWeight.length
+        ) {
+          for (let orderDet of ordersToUpdateWeight) {
+            orderDet.lotebolsa = Number(updateOrderDetail.lotebolsa);
+            await this.orderDetailRepository.update(orderDet.id, orderDet);
+          }
+        } else {
+          const dataAfter = await this.getOrderDetailAfterToDate(
+            orderDetail.order.id,
+            orderDetail,
+          );
+          if (dataAfter.length > 0) {
+            orderDetail.lotebolsa = Number(updateOrderDetail.lotebolsa);
+            await this.orderDetailRepository.update(
+              orderDetail.id,
+              orderDetail,
+            );
+            for (let orderDet of dataAfter) {
+              orderDet.lotebolsa = Number(updateOrderDetail.lotebolsa);
+              await this.orderDetailRepository.update(orderDet.id, orderDet);
+            }
           }
         }
       }
