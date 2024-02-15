@@ -107,7 +107,7 @@ export class OrderDetailService {
                   ? null
                   : existDetailOrderWithDuration[0].duration,
               status: await this.nonConformityService.getByName({
-                name: NonConformityEnum.LLENADO,
+                name: NonConformityEnum.IN_PROCESS,
               }),
             });
 
@@ -702,7 +702,7 @@ export class OrderDetailService {
       where: {
         serial: serial,
         order: { shiftclosing: 1 },
-        status: { name: NonConformityEnum.LLENADO },
+        status: { name: NonConformityEnum.IN_PROCESS },
       },
     });
 
@@ -711,7 +711,7 @@ export class OrderDetailService {
       where: {
         serial: serial,
         order: { shiftclosing: 0 },
-        status: { name: NonConformityEnum.LLENADO },
+        status: { name: NonConformityEnum.IN_PROCESS },
       },
     });
 
@@ -720,7 +720,7 @@ export class OrderDetailService {
       where: {
         serial: serial,
         order: { shiftclosing: 1 },
-        status: { name: Not(NonConformityEnum.LLENADO) },
+        status: { name: Not(NonConformityEnum.IN_PROCESS) },
       },
     });
 
@@ -740,7 +740,7 @@ export class OrderDetailService {
       const details = await this.orderDetailRepository.find({
         where: {
           order: { id: idOrder },
-          status: { name: NonConformityEnum.LLENADO },
+          status: { name: NonConformityEnum.IN_PROCESS },
         },
         order: { createdat: 'ASC' },
       });
