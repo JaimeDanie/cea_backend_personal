@@ -105,7 +105,7 @@ export class OrderDetailService {
               duration:
                 existDetailOrderWithDuration.length == 0
                   ? null
-                  : existDetailOrderWithDuration[0].duration,
+                  : existDetailOrderWithDuration[existDetailOrderWithDuration.length -1].duration,
               status: await this.nonConformityService.getByName({
                 name: NonConformityEnum.IN_PROCESS,
               }),
@@ -639,7 +639,7 @@ export class OrderDetailService {
 
       orderDetalValid['duration'] = !orderDetail.duration ? false : true;
 
-      orderDetalValid['sello'] = !orderDetail.sello ? false : true;
+      orderDetalValid['sello'] = !orderDetail.sello && orderDetail.status.name !== NonConformityEnum.IN_PROCESS ? false : true;
 
       orderDetalValid['bolsa'] = !orderDetail.lotebolsa ? false : true;
 
