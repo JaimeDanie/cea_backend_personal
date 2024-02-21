@@ -44,6 +44,8 @@ export const AppDataSource = new DataSource({
   migrationsTableName: 'migrations',
   options: {
     encrypt: false,
+    cancelTimeout: 30000,
+    connectTimeout: 30000,
   },
 });
 
