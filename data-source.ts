@@ -24,7 +24,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: false,
   connectionTimeout: 30000,
-  requestTimeout: 30000,
+  requestTimeout: 0,
   // entities: [__dirname + '/**/*.entity.ts', __dirname + '/src/**/*.entity.js'],
   entities: [
     User,

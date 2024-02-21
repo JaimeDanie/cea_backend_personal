@@ -22,7 +22,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  requestTimeout: 30000,
+  requestTimeout: 0,
   connectionTimeout: 30000,
   synchronize: false,
   entities: [

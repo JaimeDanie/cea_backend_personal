@@ -11,7 +11,7 @@ export const dataSourceOptions: DataSourceOptions = {
   password: process.env.DB_PASS,
   name: process.env.DB_NAME,
   entities: [User],
-  requestTimeout: 30000,
+  requestTimeout: 0,
   connectionTimeout: 30000,
   synchronize: false,
   options: {
