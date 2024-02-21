@@ -223,7 +223,7 @@ export class OrderDetailService {
       if (loteCount < Number(existOrder.product.characteristiclote)) {
         return numLoteOrder;
       } else {
-        return +numLoteTotal + 1;
+        return +numLoteOrder + 1;
       }
     }
   }
