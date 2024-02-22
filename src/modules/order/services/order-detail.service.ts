@@ -756,10 +756,35 @@ export class OrderDetailService {
         relations: ['product'],
         where: { id: idOrder },
       });
-      if (orderData) {
+      if(!orderData){
+        return { success: false, message: 'order not found' };
+      }
+
+      if (orderData?.shiftclosing===0) {
+       
         const details = await this.orderDetailRepository.find({
           relations: ['status'],
           where: { order: { id: idOrder } },
+          order: { createdat: 'ASC' },
+        });
+        return { success: true, order: orderData, details };
+      } 
+
+      if(orderData?.shiftclosing===1){
+        return await this.getOrderAndDetailClosing(orderData)
+      }
+    } catch (error) {
+      return { success: false, message: 'order not found.' };
+    }
+  }
+
+  async getOrderAndDetailClosing(orderData: Order) {
+    try {
+    
+      if (orderData) {
+        const details = await this.orderDetailRepository.find({
+          relations: ['status'],
+          where: { order: { id: orderData.id },status:{name: Not(NonConformityEnum.IN_PROCESS) } },
           order: { createdat: 'ASC' },
         });
         return { success: true, order: orderData, details };
