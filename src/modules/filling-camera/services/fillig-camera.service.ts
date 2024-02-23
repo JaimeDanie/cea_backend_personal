@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { FillingCamera } from '../entities/filling-camera.entity';
 import {
   FilligCameraDto,
@@ -12,7 +12,7 @@ export class FilligCameraService {
   constructor(
     @InjectRepository(FillingCamera)
     private filligCameraRepository: Repository<FillingCamera>,
-  ) {}
+  ) { }
 
   getAll(): Promise<FillingCamera[]> {
     return this.filligCameraRepository.find({});
@@ -56,6 +56,12 @@ export class FilligCameraService {
   findByid(id: string): Promise<FillingCamera> {
     return this.filligCameraRepository.findOne({
       where: { id },
+    });
+  }
+
+  otherCameraByName(filligCameraName: string): Promise<FillingCamera> {
+    return this.filligCameraRepository.findOne({
+      where: { name: Not(filligCameraName) },
     });
   }
 }

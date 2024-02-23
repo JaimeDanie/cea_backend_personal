@@ -1,3 +1,4 @@
+import { FillingCamera } from './../../filling-camera/entities/filling-camera.entity';
 import { NonConformityService } from './../../non-conformity/services/non-conformity.service';
 import { FilligCameraService } from './../../filling-camera/services/fillig-camera.service';
 import { Injectable } from '@nestjs/common';
@@ -24,7 +25,7 @@ export class OrderDetailService {
     private readonly fillingCameraService: FilligCameraService,
     private readonly nonConformityService: NonConformityService,
     private readonly orderConfigService: OrderConfigService,
-  ) {}
+  ) { }
   formatter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: '2-digit',
@@ -86,26 +87,21 @@ export class OrderDetailService {
               lote: (
                 await this.obtainNumLote(
                   existDetailOrderWithDuration[
-                    existDetailOrderWithDuration.length - 1
+                  existDetailOrderWithDuration.length - 1
                   ],
                   existOrder,
                   existDetails,
                 )
               ).toString(),
-              datefilling:
-                !created && i == 0
-                  ? this.formatDateFilling(
-                      new Date(this.formatter.format(new Date())),
-                    )
-                  : null,
-              filligcamera: existFillig,
+              datefilling: null,
+              filligcamera: await this.obtainFilligCamera(created, existFillig, i),
               order: existOrder,
               lotebolsa: orderDetail.bolsa,
               numtambor: await this.obtainTambor(),
               duration:
                 existDetailOrderWithDuration.length == 0
                   ? null
-                  : existDetailOrderWithDuration[existDetailOrderWithDuration.length -1].duration,
+                  : existDetailOrderWithDuration[existDetailOrderWithDuration.length - 1].duration,
               status: await this.nonConformityService.getByName({
                 name: NonConformityEnum.IN_PROCESS,
               }),
@@ -128,35 +124,13 @@ export class OrderDetailService {
               );
 
               if (orderDetailLastToDate.length > 0) {
-                if (
+                newOrderDetail.weight =
                   orderDetailLastToDate[orderDetailLastToDate.length - 1]
-                    .duration &&
-                  orderDetailLastToDate[orderDetailLastToDate.length - 1]
-                    .datefilling
-                ) {
-                  newOrderDetail.datefilling = this.calculateDateFilling(
-                    Number(
-                      orderDetailLastToDate[orderDetailLastToDate.length - 1]
-                        .duration,
-                    ),
-                    orderDetailLastToDate[orderDetailLastToDate.length - 1],
-                  );
-                  newOrderDetail.weight =
-                    orderDetailLastToDate[orderDetailLastToDate.length - 1]
-                      .weight || null;
-                  this.orderDetailRepository.update(
-                    newOrderDetail.id,
-                    newOrderDetail,
-                  );
-                } else {
-                  newOrderDetail.weight =
-                    orderDetailLastToDate[orderDetailLastToDate.length - 1]
-                      .weight || null;
-                  this.orderDetailRepository.update(
-                    newOrderDetail.id,
-                    newOrderDetail,
-                  );
-                }
+                    .weight || null;
+                this.orderDetailRepository.update(
+                  newOrderDetail.id,
+                  newOrderDetail,
+                );
               }
             }
 
@@ -198,6 +172,14 @@ export class OrderDetailService {
     return newDate;
   }
 
+  //OBTENER CAMARA DE LLENADO
+  async obtainFilligCamera(created: boolean, existFillig: FillingCamera, i: number) {
+    if (!created) {
+      return i == 0 || i % 2 === 0 ? existFillig : await this.fillingCameraService.otherCameraByName(existFillig.name)
+    }
+    return i == 0 || i % 2 === 0 ? this.fillingCameraService.otherCameraByName(existFillig.name) : existFillig
+  }
+
   // FUNCIONALIDAD DE UNICO LOTE
   async obtainNumLote(
     existDetailOrderWithDuration: OrderDetail,
@@ -212,7 +194,7 @@ export class OrderDetailService {
     }
     if (
       existOrder.product.code !==
-        existDetailOrderWithDuration.order.product.code &&
+      existDetailOrderWithDuration.order.product.code &&
       loteCount == Number(existOrder.product.characteristiclote)
     ) {
       return +numLoteTotal + 1;
@@ -505,19 +487,19 @@ export class OrderDetailService {
     orderDetail.novedad = updateOrderDetail.novedad
       ? updateOrderDetail.novedad
       : orderDetail.novedad
-      ? orderDetail.novedad
-      : null;
+        ? orderDetail.novedad
+        : null;
 
     orderDetail.sello = updateOrderDetail.sello
       ? Number(updateOrderDetail.sello)
       : orderDetail.sello
-      ? orderDetail.sello
-      : null;
+        ? orderDetail.sello
+        : null;
     orderDetail.status = nonConformityRestriction
       ? nonConformityRestriction
       : orderDetail.status
-      ? orderDetail.status
-      : null;
+        ? orderDetail.status
+        : null;
     if (orderDetail.sello || orderDetail.status || orderDetail.novedad) {
       await this.orderDetailRepository.update(orderDetail.id, orderDetail);
     }
@@ -734,6 +716,52 @@ export class OrderDetailService {
     );
   }
 
+  //TOMA DE TIEMPO DE LLENADO
+  async setTimeDateFilling(idOrderDetail: string) {
+    try {
+      const existOrderDetail = await this.orderDetailRepository.findOne({ where: { id: idOrderDetail } })
+
+      if (!existOrderDetail) {
+        return { sucess: false, message: "order detail not found" }
+      }
+
+      const statusConForme = await this.nonConformityService.getByName({ name: NonConformityEnum.CONFORME })
+
+      existOrderDetail.datefilling = this.formatDateFilling(
+        new Date(this.formatter.format(new Date())),
+      )
+      existOrderDetail.status = statusConForme
+
+      await this.orderDetailRepository.update(existOrderDetail.id, existOrderDetail)
+
+      return { sucess: true, message: "assigned dateFilling succesfully" }
+
+    } catch (error) {
+      return { sucess: false, message: "exception to assigned dateFilling" }
+    }
+  }
+
+  //TOMA DE TIEMPO DE LLENADO
+  async getLotesByOrder(idorder: string) {
+    try {
+      const existOrder = await this.orderRepository.findOne({ where: { id: idorder } })
+
+      if (!existOrder) {
+        return { sucess: false, message: "order not found" }
+      }
+
+      const lotes = await this.orderDetailRepository.createQueryBuilder("orderdetail").
+        where("orderdetail.order = :idorder", { idorder })
+        .select('lote').distinct().getRawMany();
+
+      return { sucess: true, data: lotes }
+
+    } catch (error) {
+      console.log("EXCEPTION==>", error)
+      return { sucess: false, message: "exception to get lotes" }
+    }
+  }
+
   //OBTENER ORDER DETAIL CON RELACIONES
   async getOrderDetailsOrderByCreatedAt(idOrder: string) {
     try {
@@ -756,21 +784,21 @@ export class OrderDetailService {
         relations: ['product'],
         where: { id: idOrder },
       });
-      if(!orderData){
+      if (!orderData) {
         return { success: false, message: 'order not found' };
       }
 
-      if (orderData?.shiftclosing===0) {
-       
+      if (orderData?.shiftclosing === 0) {
+
         const details = await this.orderDetailRepository.find({
-          relations: ['status'],
+          relations: ['status', 'filligcamera'],
           where: { order: { id: idOrder } },
           order: { createdat: 'ASC' },
         });
         return { success: true, order: orderData, details };
-      } 
+      }
 
-      if(orderData?.shiftclosing===1){
+      if (orderData?.shiftclosing === 1) {
         return await this.getOrderAndDetailClosing(orderData)
       }
     } catch (error) {
@@ -780,11 +808,11 @@ export class OrderDetailService {
 
   async getOrderAndDetailClosing(orderData: Order) {
     try {
-    
+
       if (orderData) {
         const details = await this.orderDetailRepository.find({
-          relations: ['status'],
-          where: { order: { id: orderData.id },status:{name: Not(NonConformityEnum.IN_PROCESS) } },
+          relations: ['status', 'filligcamera'],
+          where: { order: { id: orderData.id }, status: { name: Not(NonConformityEnum.IN_PROCESS) } },
           order: { createdat: 'ASC' },
         });
         return { success: true, order: orderData, details };

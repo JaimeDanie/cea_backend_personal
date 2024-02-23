@@ -22,7 +22,7 @@ import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 @UseGuards(AuthGuard)
 @Controller('order-detail')
 export class OrderDetailController {
-  constructor(private orderDetailService: OrderDetailService) {}
+  constructor(private orderDetailService: OrderDetailService) { }
 
   @Post(':idOrder')
   createOrderDetail(
@@ -94,5 +94,25 @@ export class OrderDetailController {
   @Post('/shiftclosing/:idOrder')
   shiftClosing(@Param('idOrder') idOrder: string) {
     return this.orderDetailService.closingShift(idOrder);
+  }
+
+  //ASSIGNED DATE FILLING TO ORDER DETAIL
+  @Post('/dateFilling/:idOrderDetail')
+  updateDateFilling(
+    @Param('idOrderDetail') idOrderDetail: string
+  ) {
+    return this.orderDetailService.setTimeDateFilling(
+      idOrderDetail
+    );
+  }
+
+  //GET LOTE BY ORDER
+  @Get('/lote/:idOrder')
+  getLoteByOrder(
+    @Param('idOrder') idOrder: string
+  ) {
+    return this.orderDetailService.getLotesByOrder(
+      idOrder
+    );
   }
 }
