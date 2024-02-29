@@ -306,15 +306,6 @@ export class OrderDetailService {
     );
 
     for (let orderDetail of filterUpdateOrderDetail) {
-      const orderDetailLast = await this.getOrderDetailLastToDate(
-        existOrderDetails.order.id,
-        orderDetail,
-      );
-
-      orderDetail.datefilling = this.calculateDateFilling(
-        durationDetail.duration,
-        orderDetailLast[orderDetailLast.length - 1],
-      );
       orderDetail.duration = durationDetail.duration.toString();
       orderDetail.serial = await this.generateSerial(orderDetail);
       await this.orderDetailRepository.update(orderDetail.id, orderDetail);
