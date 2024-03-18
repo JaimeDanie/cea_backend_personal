@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateOrderDto {
   @ApiProperty()
@@ -25,8 +25,8 @@ export class CreateOrderDto {
   readonly operate: string;
 
   @ApiPropertyOptional()
-  @IsString()
-  readonly supervisor: string;
+  @IsOptional()
+  readonly supervisor?: string;
 
   @ApiProperty()
   @IsString()

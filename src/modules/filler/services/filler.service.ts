@@ -9,7 +9,7 @@ import { TubularService } from 'src/modules/tubular/services/tubular.service';
 export class FillerService {
   constructor(
     @InjectRepository(Filler) private fillerRepository: Repository<Filler>,
-  ) {}
+  ) { }
 
   getFillers(): Promise<Filler[]> {
     return this.fillerRepository.manager.find(Filler, {});
@@ -29,15 +29,14 @@ export class FillerService {
     return null;
   }
 
-  // async updateFiller(id: string, filler: FillerDto) {
-  //   if (
-  //     (await this.getFiller(id)) &&
-  //     !(await this.getFillerValid(filler.tubullar, filler.tubullar))
-  //   ) {
-  //     return this.fillerRepository.update(id, filler);
-  //   }
-  //   return null;
-  // }
+  async updateFiller(id: string, filler: FillerDto) {
+    if (
+      (await this.getFiller(id))
+    ) {
+      return this.fillerRepository.update(id, filler);
+    }
+    return null;
+  }
 
   async deleteFiller(id: string) {
     if (await this.getFiller(id)) {
@@ -46,7 +45,7 @@ export class FillerService {
     return null;
   }
 
-  async getFillerValid(filler: number): Promise<Filler> {
+  async getFillerValid(filler: string): Promise<Filler> {
     const fillerFound = await this.fillerRepository.findOne({
       where: { filler },
     });

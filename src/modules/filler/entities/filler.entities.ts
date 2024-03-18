@@ -3,8 +3,6 @@ import { Tubular } from './../../tubular/entities/tubular.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -13,6 +11,6 @@ export class Filler {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
-  filler: number;
+  @Column({ nullable: true })
+  filler: string;
 }

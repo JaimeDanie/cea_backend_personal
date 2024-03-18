@@ -19,7 +19,7 @@ import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 @UseGuards(AuthGuard)
 @Controller('filler')
 export class FillerController {
-  constructor(private fillerService: FillerService) {}
+  constructor(private fillerService: FillerService) { }
 
   @Get()
   getFillers(): Promise<Filler[]> {
@@ -36,10 +36,10 @@ export class FillerController {
     return this.fillerService.createFiller(filler);
   }
 
-  // @Put(':id')
-  // updateFiller(@Param('id') id: string, @Body() filler: FillerDto) {
-  //   return this.fillerService.updateFiller(id, filler);
-  // }
+  @Put(':id')
+  updateFiller(@Param('id') id: string, @Body() filler: FillerDto) {
+    return this.fillerService.updateFiller(id, filler);
+  }
 
   @Delete(':id')
   deleteFiller(@Param('id') id: string) {
