@@ -12,6 +12,7 @@ import { NonConformity } from 'src/modules/non-conformity/entities/NonConformity
 import { Operate } from 'src/modules/operate/entities/operate.entity';
 import { OrderDetail } from 'src/modules/order/entities/order-detail.entity';
 import { OrderConfig } from 'src/modules/order/entities/order-config-lote.entity';
+import { Lote } from 'src/modules/order/entities/lote.entity';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ export const AppDataSource = new DataSource({
     Operate,
     OrderDetail,
     OrderConfig,
+    Lote
   ],
   migrations: ['src/config/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',

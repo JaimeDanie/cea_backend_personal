@@ -1,3 +1,4 @@
+import { Lote } from './src/modules/order/entities/lote.entity';
 import { OrderConfig } from './src/modules/order/entities/order-config-lote.entity';
 import { OrderDetail } from './src/modules/order/entities/order-detail.entity';
 import { Operate } from './src/modules/operate/entities/operate.entity';
@@ -39,6 +40,7 @@ export const AppDataSource = new DataSource({
     Operate,
     OrderDetail,
     OrderConfig,
+    Lote
   ],
   migrations: ['./src/database/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',

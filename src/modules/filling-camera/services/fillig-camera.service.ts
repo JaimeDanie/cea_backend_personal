@@ -64,4 +64,19 @@ export class FilligCameraService {
       where: { name: Not(filligCameraName) },
     });
   }
+
+  async updateCamera(id: string, fillingCameraDto: FilligCameraDto) {
+    try {
+      const existCamera = await this.findByid(id)
+      if (!existCamera) {
+        return { success: false, message: "No exist filling camera" }
+      }
+
+      await this.filligCameraRepository.update(id, { name: fillingCameraDto.name })
+      return { success: true, message: "update succesfully" }
+    } catch (error) {
+      return { success: false, message: "Exception to update" }
+    }
+
+  }
 }

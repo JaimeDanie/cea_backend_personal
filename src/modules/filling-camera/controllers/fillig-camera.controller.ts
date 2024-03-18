@@ -18,7 +18,7 @@ import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 @UseGuards(AuthGuard)
 @Controller('fillig-camera')
 export class FilligCameraController {
-  constructor(private fillingCameraService: FilligCameraService) {}
+  constructor(private fillingCameraService: FilligCameraService) { }
 
   @Get()
   getAll(): Promise<FillingCamera[]> {
@@ -33,5 +33,10 @@ export class FilligCameraController {
   @Put('update-status/:id')
   updateStatusFillig(@Param('id') id: string): Promise<FillingCamera> {
     return this.fillingCameraService.updateStatusFilligCamera(id);
+  }
+
+  @Put("/:id")
+  updateFillig(@Param('id') id: string, @Body() filligCamera: FilligCameraDto) {
+    return this.fillingCameraService.updateCamera(id, filligCamera);
   }
 }

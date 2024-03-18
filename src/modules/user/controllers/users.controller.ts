@@ -6,19 +6,23 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { User } from '../entities/user.entity';
 import { CreateUserDto } from '../dtos/create.dto';
 import { UpdateUserDto } from '../dtos/update.dto';
 import { DeleteResult } from 'typeorm';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ResponseUserDto } from '../dtos/responsePermission.dto';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
-@ApiTags('users')
+@ApiTags('Users')
 @Controller('users')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 export class UsersController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get()
   index(): Promise<User[]> {

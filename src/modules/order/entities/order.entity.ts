@@ -41,6 +41,10 @@ export class Order {
   @JoinColumn({ name: 'operate', referencedColumnName: 'id' })
   operate: Operate;
 
+  @ManyToOne(() => Operate, { nullable: true })
+  @JoinColumn({ name: 'supervisor', referencedColumnName: 'id' })
+  supervisor: Operate;
+
   @ManyToOne(() => Tubular)
   @JoinColumn({ name: 'tubular', referencedColumnName: 'id' })
   tubular: Tubular;

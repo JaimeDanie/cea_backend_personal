@@ -1,16 +1,19 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { RoleService } from '../services/role.service';
 import { CreateRoleDto } from '../dtos/createRole.dto';
 import { Role } from '../entities/role.entity';
 import { UpdateRoleDto } from '../dtos/updateRole.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AssignedPermissionDto } from '../dtos/assignedRole.dto';
 import { ResponsePermissionDto } from '../dtos/responsePermission.dto';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
-@ApiTags('roles')
+@ApiTags('Roles')
 @Controller('roles')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 export class RolesController {
-  constructor(private readonly roleService: RoleService) {}
+  constructor(private readonly roleService: RoleService) { }
 
   @Get()
   index(): Promise<Role[]> {

@@ -3,6 +3,7 @@ import {
   CreateMoreOrderDetailDto,
   CreateOrderDetailDto,
   DurationFillerDTO,
+  UpdateFillingOrderDetailDto,
   UpdateOrderDetailDTO,
 } from '../dtos/create-order-detail.dto';
 import { OrderDetailService } from './../services/order-detail.service';
@@ -106,6 +107,18 @@ export class OrderDetailController {
     );
   }
 
+  //ASSIGNED DATE FILLING TO ORDER DETAIL
+  @Post('/dateFillingHour/:idOrderDetail')
+  updateDateFillingHours(
+    @Param('idOrderDetail') idOrderDetail: string,
+    @Body() updateFilling: UpdateFillingOrderDetailDto
+  ) {
+    return this.orderDetailService.setTimeDateFilling(
+      idOrderDetail,
+      updateFilling
+    );
+  }
+
   //GET LOTE BY ORDER
   @Get('/lote/:idOrder')
   getLoteByOrder(
@@ -114,5 +127,10 @@ export class OrderDetailController {
     return this.orderDetailService.getLotesByOrder(
       idOrder
     );
+  }
+
+  @Get('/getAll')
+  getAllOrderDetail() {
+    return this.orderDetailService.getAllOrderDetails()
   }
 }

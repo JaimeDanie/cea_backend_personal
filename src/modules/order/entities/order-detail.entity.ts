@@ -32,7 +32,7 @@ export class OrderDetail {
   duration?: string;
 
   @Column({ nullable: true })
-  sello?: number;
+  sello?: string;
 
   @Column({ nullable: true })
   lotebolsa?: number;

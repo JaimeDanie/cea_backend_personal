@@ -20,8 +20,9 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const configSwagger = new DocumentBuilder()
-    .setTitle('Muto projects')
-    .setDescription('Description')
+    .setTitle('Cea Backend')
+    .setDescription('Api cea  | By: Muto studio')
+    .setContact("Jaime Daniel Barros Mendoza", "", "jaimedaniel.bm91@gmail.com")
     .setVersion('1.0')
     .addBearerAuth({
       type: 'http',

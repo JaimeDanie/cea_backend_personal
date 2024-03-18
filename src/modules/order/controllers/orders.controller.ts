@@ -15,12 +15,12 @@ import { CreateOrderDto } from '../dtos/create.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
-@ApiTags('ordenes')
+@ApiTags('Ordenes')
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(private readonly orderService: OrderService) { }
 
   @Get()
   index(): Promise<Order[]> {

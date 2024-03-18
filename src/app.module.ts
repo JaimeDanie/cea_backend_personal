@@ -27,7 +27,7 @@ import { OperateModule } from './modules/operate/operate.module';
         host: 'smtp.gmail.com',
         auth: {
           user: 'jaimedaniel.bm91@gmail.com',
-          pass: 'ouro baoc jmaj eacx',
+          pass: 'ourobaocjmajeacx',
         },
       },
     }),
@@ -46,4 +46,4 @@ import { OperateModule } from './modules/operate/operate.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

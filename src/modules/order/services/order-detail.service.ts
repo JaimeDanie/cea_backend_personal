@@ -10,10 +10,12 @@ import {
   CreateMoreOrderDetailDto,
   CreateOrderDetailDto,
   DurationFillerDTO,
+  UpdateFillingOrderDetailDto,
   UpdateOrderDetailDTO,
 } from '../dtos/create-order-detail.dto';
 import { NonConformityEnum } from 'src/modules/non-conformity/dtos/non-conformity.dto';
 import { OrderConfigService } from './order-config.service';
+import { Lote } from '../entities/lote.entity';
 
 @Injectable()
 export class OrderDetailService {
@@ -22,9 +24,11 @@ export class OrderDetailService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderDetail)
     private readonly orderDetailRepository: Repository<OrderDetail>,
+    @InjectRepository(Lote)
+    private readonly loteRepository: Repository<Lote>,
     private readonly fillingCameraService: FilligCameraService,
     private readonly nonConformityService: NonConformityService,
-    private readonly orderConfigService: OrderConfigService,
+    private readonly orderConfigService: OrderConfigService
   ) { }
   formatter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -190,6 +194,7 @@ export class OrderDetailService {
     const numLoteOrder = await this.obtainLoteByOrder(existOrder.id);
     const loteCount = await this.obtainCountByLote(numLoteOrder.toString());
     if (!existDetailOrderWithDuration) {
+      await this.createLote(+numLoteTotal + 1)
       return +numLoteTotal + 1;
     }
     if (
@@ -197,14 +202,17 @@ export class OrderDetailService {
       existDetailOrderWithDuration.order.product.code &&
       loteCount == Number(existOrder.product.characteristiclote)
     ) {
+      await this.createLote(+numLoteTotal + 1)
       return +numLoteTotal + 1;
     } else if (
       existOrder.product.code ===
       existDetailOrderWithDuration.order.product.code
     ) {
       if (loteCount < Number(existOrder.product.characteristiclote)) {
+        await this.createLote(+numLoteOrder)
         return numLoteOrder;
       } else {
+        await this.createLote(+numLoteOrder + 1)
         return +numLoteOrder + 1;
       }
     }
@@ -286,7 +294,7 @@ export class OrderDetailService {
     }
     if (orderDetailCalculateLLenado.length > 0) {
       existOrderDetails.duration = durationDetail.duration.toString();
-      existOrderDetails.serial = await this.generateSerial(existOrderDetails);
+      //existOrderDetails.serial = await this.generateSerial(existOrderDetails);
       await this.orderDetailRepository.update(
         existOrderDetails.id,
         existOrderDetails,
@@ -297,7 +305,15 @@ export class OrderDetailService {
       orderDetailCalculateLLenado[0].id !== existOrderDetails.id &&
       !orderDetailCalculateLLenado[0].duration
     ) {
-      return { success: false, message: 'first order detail not initialize' };
+      for (let orderDetail of orderDetailCalculateLLenado) {
+        orderDetail.duration = durationDetail.duration.toString();
+        // orderDetail.serial = await this.generateSerial(orderDetail);
+        await this.orderDetailRepository.update(orderDetail.id, orderDetail);
+        return {
+          success: true,
+          message: 'assigned duration succesfully',
+        };
+      }
     }
     // CALCULAR POR MEDIO DEL VALOR DE DURACION FECHA/HORA DE LLENADO
 
@@ -307,7 +323,7 @@ export class OrderDetailService {
 
     for (let orderDetail of filterUpdateOrderDetail) {
       orderDetail.duration = durationDetail.duration.toString();
-      orderDetail.serial = await this.generateSerial(orderDetail);
+      // orderDetail.serial = await this.generateSerial(orderDetail);
       await this.orderDetailRepository.update(orderDetail.id, orderDetail);
     }
 
@@ -482,7 +498,7 @@ export class OrderDetailService {
         : null;
 
     orderDetail.sello = updateOrderDetail.sello
-      ? Number(updateOrderDetail.sello)
+      ? updateOrderDetail.sello
       : orderDetail.sello
         ? orderDetail.sello
         : null;
@@ -708,7 +724,7 @@ export class OrderDetailService {
   }
 
   //TOMA DE TIEMPO DE LLENADO
-  async setTimeDateFilling(idOrderDetail: string) {
+  async setTimeDateFilling(idOrderDetail: string, updateFilling?: UpdateFillingOrderDetailDto) {
     try {
       const existOrderDetail = await this.orderDetailRepository.findOne({ where: { id: idOrderDetail } })
 
@@ -717,10 +733,21 @@ export class OrderDetailService {
       }
 
       const statusConForme = await this.nonConformityService.getByName({ name: NonConformityEnum.CONFORME })
+      if (!updateFilling) {
+        existOrderDetail.datefilling = existOrderDetail.datefilling ? existOrderDetail.datefilling :
+          this.formatDateFilling(
+            new Date(this.formatter.format(new Date())),
+          )
+      } else {
+        const newDate = new Date()
+        const splitHours = updateFilling.hours.split(':')
+        newDate.setHours(parseFloat(splitHours[0]))
+        newDate.setMinutes(parseFloat(splitHours[1]))
+        newDate.setSeconds(parseFloat(splitHours[2]))
+        existOrderDetail.datefilling = existOrderDetail.datefilling ? existOrderDetail.datefilling :
+          this.formatDateFilling(new Date(this.formatter.format(newDate)))
+      }
 
-      existOrderDetail.datefilling = this.formatDateFilling(
-        new Date(this.formatter.format(new Date())),
-      )
       existOrderDetail.status = statusConForme
 
       await this.orderDetailRepository.update(existOrderDetail.id, existOrderDetail)
@@ -744,6 +771,10 @@ export class OrderDetailService {
       const lotes = await this.orderDetailRepository.createQueryBuilder("orderdetail").
         where("orderdetail.order = :idorder", { idorder })
         .select('lote').distinct().getRawMany();
+      // DESACTIVAR CUANDO SE LIMPIE LA DATA
+      await Promise.all(lotes.map(async (lote) => {
+        await this.createLote(lote.lote)
+      }))
 
       return { sucess: true, data: lotes }
 
@@ -814,4 +845,22 @@ export class OrderDetailService {
       return { success: false, message: 'order not found.' };
     }
   }
+
+  async createLote(numlote: number) {
+    const existLote = await this.loteRepository.findOne({ where: { numlote } })
+    if (!existLote) {
+      await this.loteRepository.save({ numlote })
+    }
+    return true;
+  }
+
+  async getAllOrderDetails() {
+    const details = await this.orderDetailRepository.find({
+      relations: ['order', 'status', 'filligcamera'],
+      where: { order: { shiftclosing: 0 } },
+      order: { createdat: 'ASC' },
+    });
+    return { success: true, data: details };
+  }
+
 }

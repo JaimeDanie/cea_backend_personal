@@ -1,8 +1,10 @@
 import { Controller, Get } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 
-@Controller('')
+@ApiTags("Healt")
+@Controller('health')
 export class SiteController {
-  constructor(){}
+  constructor() { }
 
   @Get()
   index(): string {

@@ -9,15 +9,18 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CreateRoleDto } from '../dtos/createRole.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PermissionService } from '../services/permission.service';
 import { Permission } from '../entities/permission.entity';
 import { ResponsePermissionDto } from '../dtos/responsePermission.dto';
+import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 
-@ApiTags('permission')
+@ApiTags('Permission')
 @Controller('permission')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
 export class PermissionController {
-  constructor(private readonly permisionService: PermissionService) {}
+  constructor(private readonly permisionService: PermissionService) { }
 
   @Get()
   index(): Promise<Permission[]> {

@@ -1,10 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsDateString,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
   Min,
 } from 'class-validator';
 
@@ -59,4 +59,10 @@ export class CreateMoreOrderDetailDto {
   @IsNumber()
   @Min(1)
   readonly num_stickers: number;
+}
+
+export class UpdateFillingOrderDetailDto {
+  @ApiProperty()
+  @Matches(/^(1[0-2]|0?[1-9]):([0-5]?[0-9]):([0-5]?[0-9])$/)
+  readonly hours: string;
 }

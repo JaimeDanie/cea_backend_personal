@@ -15,13 +15,13 @@ import {
   ChangePasswordDto,
   RequestChangePassword,
 } from '../dtos/change-password.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserService } from 'src/modules/user/services/user.service';
+import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('auth')
+
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('sign-in')
   signIn(@Body() { email, password }: SignInDto) {

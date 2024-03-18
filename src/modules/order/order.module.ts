@@ -17,11 +17,14 @@ import { AuthModule } from '../auth/auth.module';
 import { OrderConfigService } from './services/order-config.service';
 import { OrderConfigController } from './controllers/order-config.controller';
 import { OrderConfig } from './entities/order-config-lote.entity';
+import { Lote } from './entities/lote.entity';
+import { LoteController } from './controllers/lote.controller';
+import { LoteService } from './services/lote.service';
 
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([Order, OrderDetail, OrderConfig]),
+    TypeOrmModule.forFeature([Order, OrderDetail, OrderConfig, Lote]),
     forwardRef(() => ProductsModule),
     FillerModule,
     TubularModule,
@@ -29,8 +32,8 @@ import { OrderConfig } from './entities/order-config-lote.entity';
     FillingCameraModule,
     NonConformityModule,
   ],
-  controllers: [OrdersController, OrderDetailController, OrderConfigController],
-  providers: [OrderService, OrderDetailService, OrderConfigService],
+  controllers: [OrdersController, OrderDetailController, OrderConfigController, LoteController],
+  providers: [OrderService, OrderDetailService, OrderConfigService, LoteService],
   exports: [OrderService],
 })
-export class OrderModule {}
+export class OrderModule { }
