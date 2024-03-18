@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class CreateOrderDto {
@@ -23,6 +23,10 @@ export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()
   readonly operate: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  readonly supervisor: string;
 
   @ApiProperty()
   @IsString()

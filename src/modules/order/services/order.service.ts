@@ -17,7 +17,7 @@ export class OrderService {
     private fillerService: FillerService,
     private operatorService: OperateService,
     private tubularService: TubularService,
-  ) {}
+  ) { }
 
   async getOrders(): Promise<Order[]> {
     return this.orderRepository.find({
@@ -58,6 +58,12 @@ export class OrderService {
       console.log('NO EXIST OPERATE');
       return null;
     }
+
+    const supervisor = await this.operatorService.getOne(orderData.supervisor);
+    if (!supervisor) {
+      console.log('NO EXIST OPERATE');
+      return null;
+    }
     const tubular = await this.tubularService.getById(orderData.tubular);
     if (!tubular) {
       console.log('NO EXIST TUBULAR');
@@ -71,6 +77,7 @@ export class OrderService {
       filler,
       operate,
       numorder: await this.generateNumOrder(),
+      supervisor
     };
 
     return this.orderRepository.save(newOrder);
@@ -120,6 +127,12 @@ export class OrderService {
       console.log('NO EXIST OPERATE');
       return null;
     }
+
+    const supervisor = await this.operatorService.getOne(orderData.supervisor);
+    if (!supervisor) {
+      console.log('NO EXIST SUPERVISOR');
+      return null;
+    }
     const tubular = await this.tubularService.getById(orderData.tubular);
     if (!tubular) {
       console.log('NO EXIST TUBULAR');
@@ -132,6 +145,7 @@ export class OrderService {
       product,
       filler,
       operate,
+      supervisor
     };
 
     await this.orderRepository.update(idOrder, newOrder);
