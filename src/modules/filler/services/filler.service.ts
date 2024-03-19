@@ -33,16 +33,23 @@ export class FillerService {
     if (
       (await this.getFiller(id))
     ) {
-      return this.fillerRepository.update(id, filler);
+      await this.fillerRepository.update(id, filler);
+      return { success: true, message: "update succesfully" }
     }
-    return null;
+    return { success: false, message: "no exist filler" }
   }
 
   async deleteFiller(id: string) {
-    if (await this.getFiller(id)) {
-      return this.fillerRepository.delete(id);
+    try {
+      if (await this.getFiller(id)) {
+        await this.fillerRepository.delete(id);
+        return { success: true, message: "deleted succesfully" }
+      }
+      return { success: false, message: "no updated" }
+    } catch (error) {
+      return { success: false, message: "filler assigned no updated" }
     }
-    return null;
+
   }
 
   async getFillerValid(filler: string): Promise<Filler> {

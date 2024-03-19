@@ -27,8 +27,12 @@ export class FillerController {
   }
 
   @Get(':id')
-  getFiller(@Param('id') id: string): Promise<Filler> {
-    return this.fillerService.getFiller(id);
+  async getFiller(@Param('id') id: string) {
+    const filler = await this.fillerService.getFiller(id);
+    if (filler) {
+      return { success: true, data: filler }
+    }
+    return { success: false, message: "no exist filler" }
   }
 
   @Post()
