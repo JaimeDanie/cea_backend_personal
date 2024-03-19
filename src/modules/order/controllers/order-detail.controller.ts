@@ -129,7 +129,7 @@ export class OrderDetailController {
     );
   }
 
-  @Get('/getAll')
+  @Get('/get/all')
   getAllOrderDetail() {
     return this.orderDetailService.getAllOrderDetails()
   }
