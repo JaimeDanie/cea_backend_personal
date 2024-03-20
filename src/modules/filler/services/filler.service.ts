@@ -34,20 +34,20 @@ export class FillerService {
       (await this.getFiller(id))
     ) {
       await this.fillerRepository.update(id, filler);
-      return { success: true, message: "update succesfully" }
+      return { success: true, message: "LLenadora actualizada correctamente" }
     }
-    return { success: false, message: "no exist filler" }
+    return { success: false, message: "Llenadora no existe" }
   }
 
   async deleteFiller(id: string) {
     try {
       if (await this.getFiller(id)) {
         await this.fillerRepository.delete(id);
-        return { success: true, message: "deleted succesfully" }
+        return { success: true, message: "Llenadora eliminada correctamente" }
       }
-      return { success: false, message: "no updated" }
+      return { success: false, message: "Llenadora no existe" }
     } catch (error) {
-      return { success: false, message: "filler assigned no updated" }
+      return { success: false, message: "Llenadora asignada, no se puede eliminar" }
     }
 
   }
