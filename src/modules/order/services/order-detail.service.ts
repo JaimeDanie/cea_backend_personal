@@ -558,7 +558,7 @@ export class OrderDetailService {
           ordersToUpdateWeight.length
         ) {
           for (let orderDet of ordersToUpdateWeight) {
-            orderDet.lotebolsa = Number(updateOrderDetail.lotebolsa);
+            orderDet.lotebolsa = updateOrderDetail.lotebolsa;
             await this.orderDetailRepository.update(orderDet.id, orderDet);
           }
         } else {
@@ -567,13 +567,13 @@ export class OrderDetailService {
             orderDetail,
           );
           if (dataAfter.length > 0) {
-            orderDetail.lotebolsa = Number(updateOrderDetail.lotebolsa);
+            orderDetail.lotebolsa = updateOrderDetail.lotebolsa;
             await this.orderDetailRepository.update(
               orderDetail.id,
               orderDetail,
             );
             for (let orderDet of dataAfter) {
-              orderDet.lotebolsa = Number(updateOrderDetail.lotebolsa);
+              orderDet.lotebolsa = updateOrderDetail.lotebolsa;
               await this.orderDetailRepository.update(orderDet.id, orderDet);
             }
           }
@@ -628,7 +628,7 @@ export class OrderDetailService {
 
       orderDetalValid['duration'] = !orderDetail.duration ? false : true;
 
-      orderDetalValid['sello'] = !orderDetail.sello && orderDetail.status.name !== NonConformityEnum.IN_PROCESS ? false : true;
+      //orderDetalValid['sello'] = !orderDetail.sello && orderDetail.status.name !== NonConformityEnum.IN_PROCESS ? false : true;
 
       orderDetalValid['bolsa'] = !orderDetail.lotebolsa ? false : true;
 

@@ -20,9 +20,9 @@ export class CreateOrderDetailDto {
   filligCamera: string;
 
   @ApiProperty()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  bolsa: number;
+  bolsa: string;
 }
 
 export class DurationFillerDTO {

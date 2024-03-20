@@ -35,7 +35,7 @@ export class OrderDetail {
   sello?: string;
 
   @Column({ nullable: true })
-  lotebolsa?: number;
+  lotebolsa?: string;
 
   @Column({ nullable: true, type: 'decimal', precision: 7, scale: 2 })
   weight?: number;
