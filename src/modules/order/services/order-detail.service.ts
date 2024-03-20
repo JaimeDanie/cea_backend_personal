@@ -863,4 +863,33 @@ export class OrderDetailService {
     return { success: true, data: details };
   }
 
+  async getLotesGnal() {
+    try {
+      const existOrder = await this.orderRepository.find({ relations: ["product"] })
+
+      if (existOrder.length === 0) {
+        return { sucess: false, message: "No existen órdenes" }
+      }
+      let resultLotes = []
+      await Promise.all(existOrder.map(async (orden) => {
+        const idorder = orden.id
+        const lotes = await this.orderDetailRepository.createQueryBuilder("orderdetail").
+          where("orderdetail.order = :idorder", { idorder })
+          .select('lote').distinct().getRawMany();
+        if (lotes.length > 0) {
+          await Promise.all(lotes.map(async (lote) => {
+            const quatityTambores = await this.orderDetailRepository.find({ where: { lote: lote.lote } })
+            resultLotes.push({ orderSap: orden.saporder, lote: lote.lote, product: orden.product.name, quantity: quatityTambores.length })
+          }))
+        }
+      }))
+      resultLotes = resultLotes.sort((a, b) => Number(a.lote) - Number(b.lote))
+      return { sucess: true, data: resultLotes }
+
+    } catch (error) {
+      console.log("EXCEPTION==>", error)
+      return { sucess: false, message: "exception to get lotes" }
+    }
+  }
+
 }

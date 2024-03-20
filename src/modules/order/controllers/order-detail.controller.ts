@@ -133,4 +133,9 @@ export class OrderDetailController {
   getAllOrderDetail() {
     return this.orderDetailService.getAllOrderDetails()
   }
+
+  @Get('/lotes/all')
+  getLoteGnal() {
+    return this.orderDetailService.getLotesGnal()
+  }
 }

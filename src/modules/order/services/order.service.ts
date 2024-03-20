@@ -21,14 +21,14 @@ export class OrderService {
 
   async getOrders(): Promise<Order[]> {
     return this.orderRepository.find({
-      relations: { filler: true, operate: true, product: true, tubular: true },
+      relations: { filler: true, operate: true, product: true, tubular: true, supervisor: true },
     });
   }
 
   async getOrder(id: string): Promise<Order> {
     return await this.orderRepository.findOne({
       where: { id },
-      relations: { filler: true, operate: true, product: true, tubular: true },
+      relations: { filler: true, operate: true, product: true, tubular: true, supervisor: true },
     });
   }
 
