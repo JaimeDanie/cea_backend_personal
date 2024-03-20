@@ -624,7 +624,7 @@ export class OrderDetailService {
     orderDetails.map((orderDetail) => {
       let orderDetalValid = {};
       orderDetalValid['id'] = orderDetail.id;
-      orderDetalValid['datefilling'] = !orderDetail.datefilling ? false : true;
+      // orderDetalValid['datefilling'] = !orderDetail.datefilling ? false : true;
 
       orderDetalValid['duration'] = !orderDetail.duration ? false : true;
 
