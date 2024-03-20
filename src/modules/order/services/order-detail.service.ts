@@ -700,7 +700,6 @@ export class OrderDetailService {
       where: {
         serial: serial,
         order: { shiftclosing: 0 },
-        status: { name: NonConformityEnum.IN_PROCESS },
       },
     });
 
