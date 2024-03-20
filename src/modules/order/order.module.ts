@@ -20,11 +20,14 @@ import { OrderConfig } from './entities/order-config-lote.entity';
 import { Lote } from './entities/lote.entity';
 import { LoteController } from './controllers/lote.controller';
 import { LoteService } from './services/lote.service';
+import { ShiftController } from './controllers/shift.controller';
+import { ShiftService } from './services/shift.service';
+import { Shift } from './entities/shift.entity';
 
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([Order, OrderDetail, OrderConfig, Lote]),
+    TypeOrmModule.forFeature([Order, OrderDetail, OrderConfig, Lote, Shift]),
     forwardRef(() => ProductsModule),
     FillerModule,
     TubularModule,
@@ -32,8 +35,8 @@ import { LoteService } from './services/lote.service';
     FillingCameraModule,
     NonConformityModule,
   ],
-  controllers: [OrdersController, OrderDetailController, OrderConfigController, LoteController],
-  providers: [OrderService, OrderDetailService, OrderConfigService, LoteService],
+  controllers: [OrdersController, OrderDetailController, OrderConfigController, LoteController, ShiftController],
+  providers: [OrderService, OrderDetailService, OrderConfigService, LoteService, ShiftService],
   exports: [OrderService],
 })
 export class OrderModule { }

@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { CreateOrderDto } from '../dtos/create.dto';
 import { Injectable } from '@nestjs/common';
 import { TubularService } from 'src/modules/tubular/services/tubular.service';
+import { Shift } from '../entities/shift.entity';
 
 @Injectable()
 export class OrderService {
@@ -17,18 +18,20 @@ export class OrderService {
     private fillerService: FillerService,
     private operatorService: OperateService,
     private tubularService: TubularService,
+    @InjectRepository(Shift)
+    private readonly shiftRepository: Repository<Shift>,
   ) { }
 
   async getOrders(): Promise<Order[]> {
     return this.orderRepository.find({
-      relations: { filler: true, operate: true, product: true, tubular: true, supervisor: true },
+      relations: { filler: true, operate: true, product: true, tubular: true, supervisor: true, turno: true },
     });
   }
 
   async getOrder(id: string): Promise<Order> {
     return await this.orderRepository.findOne({
       where: { id },
-      relations: { filler: true, operate: true, product: true, tubular: true, supervisor: true },
+      relations: { filler: true, operate: true, product: true, tubular: true, supervisor: true, turno: true },
     });
   }
 
@@ -69,6 +72,16 @@ export class OrderService {
       console.log('NO EXIST TUBULAR');
       return null;
     }
+    let turno = null
+
+    if (orderData.turno) {
+      turno = await this.shiftRepository.findOne({ where: { id: orderData.turno } })
+      if (!turno) {
+        console.log('NO EXIST TRUNO');
+        return null;
+      }
+    }
+
 
     const newOrder = {
       ...orderData,
@@ -77,7 +90,8 @@ export class OrderService {
       filler,
       operate,
       numorder: await this.generateNumOrder(),
-      supervisor
+      supervisor,
+      turno
     };
 
     return this.orderRepository.save(newOrder);
@@ -139,13 +153,24 @@ export class OrderService {
       return null;
     }
 
+    let turno = null
+    console.log("TURNO==>", orderData.turno)
+    if (orderData.turno) {
+      turno = await this.shiftRepository.findOne({ where: { id: orderData.turno } })
+      if (!turno) {
+        console.log('NO EXIST TRUNO');
+        return null;
+      }
+    }
+
     const newOrder = {
       ...orderData,
       tubular,
       product,
       filler,
       operate,
-      supervisor
+      supervisor,
+      turno
     };
 
     await this.orderRepository.update(idOrder, newOrder);

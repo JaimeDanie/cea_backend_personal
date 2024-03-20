@@ -13,6 +13,7 @@ import { Operate } from 'src/modules/operate/entities/operate.entity';
 import { OrderDetail } from 'src/modules/order/entities/order-detail.entity';
 import { OrderConfig } from 'src/modules/order/entities/order-config-lote.entity';
 import { Lote } from 'src/modules/order/entities/lote.entity';
+import { Shift } from 'src/modules/order/entities/shift.entity';
 
 dotenv.config();
 
@@ -39,7 +40,8 @@ export const AppDataSource = new DataSource({
     Operate,
     OrderDetail,
     OrderConfig,
-    Lote
+    Lote,
+    Shift
   ],
   migrations: ['src/config/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',

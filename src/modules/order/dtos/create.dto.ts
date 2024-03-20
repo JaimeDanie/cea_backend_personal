@@ -32,4 +32,8 @@ export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()
   readonly tubular: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  readonly turno?: string;
 }

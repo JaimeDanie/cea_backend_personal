@@ -404,7 +404,7 @@ export class OrderDetailService {
     const orderShiftClosing = await this.obtainOrderShiftClosing();
     let availableSeriales = [];
     if (orderShiftClosing.length > 0) {
-      availableSeriales = await this.obtainSerialesAvailable(orderShiftClosing);
+      availableSeriales = await this.obtainSerialesAvailable(orderShiftClosing, orderDetail.order);
     }
     if (availableSeriales.length > 0) {
       return availableSeriales[0];
@@ -662,7 +662,7 @@ export class OrderDetailService {
     return orderShiftClosing;
   }
 
-  async obtainSerialesAvailable(ordersShiftClosing: Order[]) {
+  async obtainSerialesAvailable(ordersShiftClosing: Order[], orderActual: Order) {
     const serialesAvailable = [];
     for (let order of ordersShiftClosing) {
       const ordeDetailByOrder = await this.getOrderDetailsOrderByCreatedAt(
@@ -672,6 +672,7 @@ export class OrderDetailService {
         for (let orderDetail of ordeDetailByOrder) {
           const available = await this.obtainSerialReutilizado(
             orderDetail.serial,
+            orderActual
           );
           if (available) {
             //console.log('SERIAL NO REUTILIZADO', orderDetail.serial);
@@ -684,8 +685,7 @@ export class OrderDetailService {
     return serialesAvailable;
   }
 
-  async obtainSerialReutilizado(serial: string) {
-    //console.log('SERIAL A BUSCAR==>', serial);
+  async obtainSerialReutilizado(serial: string, orderActual: Order) {
     const existSerialAvailable = await this.orderDetailRepository.find({
       relations: ['status', 'order'],
       where: {
@@ -713,12 +713,15 @@ export class OrderDetailService {
     });
 
     // console.log('EN ORDEN ABIERTA==>', existSerialInOrder.length);
-    // console.log('EN ORDEN CERRADA==>', existSerialAvailable.length);
+    //console.log('EN ORDEN CERRADA==>', existSerialAvailable.length);
     // console.log('------------------------------------------------');
+    //console.log("TIME ACTUAL==>", orderActual.createdAt.getTime(), "---- TIME ORDER SERIAL==>", orderSerial?.createdAt?.getTime())
+    //console.log("SE PUEDE USAR==>", orderActual?.createdAt?.getTime() > orderSerial?.createdAt?.getTime())
+    const isValidSerial = existSerialAvailable.length > 0 ? existSerialAvailable.filter((order) => orderActual.createdAt.getTime() > order.order.createdAt.getTime()).length > 0 : false
     return (
       existSerialAvailable.length > 0 &&
       existSerialInOrder.length === 0 &&
-      existSerialCerrado.length === 0
+      existSerialCerrado.length === 0 && isValidSerial
     );
   }
 
@@ -787,6 +790,7 @@ export class OrderDetailService {
   async getOrderDetailsOrderByCreatedAt(idOrder: string) {
     try {
       const details = await this.orderDetailRepository.find({
+        relations: { order: true },
         where: {
           order: { id: idOrder },
           status: { name: NonConformityEnum.IN_PROCESS },

@@ -10,10 +10,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Shift } from './shift.entity';
 
 @Entity({ name: 'orders' })
 export class Order {
@@ -48,6 +48,10 @@ export class Order {
   @ManyToOne(() => Tubular)
   @JoinColumn({ name: 'tubular', referencedColumnName: 'id' })
   tubular: Tubular;
+
+  @ManyToOne(() => Shift, { nullable: true })
+  @JoinColumn({ name: 'turno', referencedColumnName: 'id' })
+  turno: Shift;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
