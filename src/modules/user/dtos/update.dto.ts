@@ -37,7 +37,7 @@ export class UpdateUserDto {
   @ApiPropertyOptional()
   @IsArray()
   @IsOptional()
-  readonly roles: Role[];
+  readonly roles: string[];
 
   @ApiPropertyOptional()
   @IsBoolean()

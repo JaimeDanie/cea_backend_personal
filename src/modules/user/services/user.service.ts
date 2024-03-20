@@ -8,12 +8,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from '../dtos/update.dto';
 import { ResponseUserDto } from '../dtos/responsePermission.dto';
+import { Role } from '../entities/role.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async getUsers(): Promise<User[]> {
     let users = await AppDataSource.manager.find(User, {
@@ -50,8 +51,6 @@ export class UserService {
           .filter((role) => role != null),
       };
     });
-
-    console.log('USERS MAPPER==>', users[1].roles);
     return users;
   }
 
@@ -114,15 +113,15 @@ export class UserService {
 
       if (
         updateBody.hasOwnProperty('password') &&
-        updateBody.password.length > 0 &&
-        updateBody.password.length < 6
+        updateBody?.password?.length > 0 &&
+        updateBody?.password?.length < 6
       ) {
         throw new Error('password must be less than 6 characters');
       }
 
       if (
         updateBody.hasOwnProperty('password') &&
-        updateBody.password.length === 0
+        updateBody?.password?.length === 0
       ) {
         delete updateBody.password;
       }
@@ -134,7 +133,7 @@ export class UserService {
 
       if (
         updateBody.hasOwnProperty('password') &&
-        updateBody.password.length >= 6
+        updateBody?.password?.length >= 6
       ) {
         updateBody.password = await this.hashPassword(updateBody.password);
       }
@@ -154,15 +153,30 @@ export class UserService {
       updateBody.hasOwnProperty('isAdmin')
         ? (existingUser.isAdmin = updateBody.isAdmin)
         : undefined;
-      updateBody.hasOwnProperty('roles')
-        ? (existingUser.roles = updateBody.roles)
-        : undefined;
+      const existRoles = []
+      if (updateBody.hasOwnProperty('roles')) {
+        const roles = updateBody.roles
+        await Promise.all(roles.map(async (rol) => {
+          const role = await AppDataSource.manager.findOne(Role, {
+            where: { id: rol }
+          });
+          existRoles.push(role)
+        }));
+        const exists = existRoles.filter((role) => role === null)
+        if (exists.length > 0) {
+          return { success: false, message: "role no exist" }
+        }
+
+        existingUser.roles = existRoles
+      }
+
 
       const { password, ...result } = await AppDataSource.manager.save(
         existingUser,
       );
       return result;
     } catch (error) {
+      console.log("ERROR==>", error)
       throw new Error(error);
     }
   }
