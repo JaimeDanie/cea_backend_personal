@@ -4,7 +4,7 @@ import { FilligCameraService } from './../../filling-camera/services/fillig-came
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from '../entities/order.entity';
-import { IsNull, LessThan, MoreThan, Not, Repository } from 'typeorm';
+import { IsNull, LessThan, Like, MoreThan, Not, Repository } from 'typeorm';
 import { OrderDetail } from '../entities/order-detail.entity';
 import {
   CreateMoreOrderDetailDto,
@@ -424,10 +424,24 @@ export class OrderDetailService {
       return availableSeriales[0];
     }
     const dateData = new Date(orderDetail.createdat);
+    const anio = dateData.getFullYear().toString()
+    const serialMax = await this.obtainSerialMax(anio)
+    const indexMax = serialMax ? Number(serialMax.split(anio)[1]) : 0
+
     return (
-      dateData.getFullYear().toString() +
-      orderDetail.numtambor.toString().padStart(6, '0')
+      anio +
+      (indexMax + 1).toString().padStart(6, '0')
     );
+  }
+
+  //OBTAIN SERIAL MAXIMO
+  async obtainSerialMax(anio: string) {
+    const details = await this.orderDetailRepository.find({
+      where: { serial: Like(`${anio}%`) },
+      order: { serial: 'DESC' },
+      take: 1
+    });
+    return details[0]?.serial
   }
 
   // CALCULAR FECHA DE LLENADO
