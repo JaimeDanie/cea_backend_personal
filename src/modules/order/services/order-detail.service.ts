@@ -63,7 +63,7 @@ export class OrderDetailService {
           orderDetail.filligCamera,
         );
       } else {
-        const orderDetailFirst = await this.getFirstOrderDetailLast(
+        const orderDetailFirst = await this.getLastOderDetail(
           existOrder.id,
         );
         if (orderDetailFirst.length === 0) {
@@ -111,7 +111,7 @@ export class OrderDetailService {
               }),
             });
 
-            newOrderDetail.serial = await this.generateSerial(newOrderDetail);
+            newOrderDetail.serial = await this.generateSerial(newOrderDetail, created);
             delete newOrderDetail['dateFilling'];
             delete newOrderDetail['filligCamera'];
             delete newOrderDetail['num_stickers'];
@@ -285,7 +285,7 @@ export class OrderDetailService {
     });
 
     if (orderDetailCalculateLLenado.length === 0 && existOrderDetails) {
-      existOrderDetails.serial = await this.generateSerial(existOrderDetails);
+      // existOrderDetails.serial = await this.generateSerial(existOrderDetails);
       await this.orderDetailRepository.update(
         existOrderDetails.id,
         existOrderDetails,
@@ -399,14 +399,28 @@ export class OrderDetailService {
     }
   }
 
+  //OBTENER ORDER DETAIL CON RELACIONES
+  async getLastOderDetail(idOrder: string) {
+    try {
+      const details = await this.orderDetailRepository.find({
+        relations: ['order', 'filligcamera', 'status'],
+        where: { order: { id: idOrder } },
+        order: { createdat: "DESC" }
+      });
+      return details;
+    } catch (error) {
+      console.log('ERROR ACA GET ORDER DETAILS==>', error);
+    }
+  }
+
   //GENERAR SERIAL
-  async generateSerial(orderDetail: OrderDetail) {
+  async generateSerial(orderDetail: OrderDetail, created: boolean) {
     const orderShiftClosing = await this.obtainOrderShiftClosing();
     let availableSeriales = [];
     if (orderShiftClosing.length > 0) {
       availableSeriales = await this.obtainSerialesAvailable(orderShiftClosing, orderDetail.order);
     }
-    if (availableSeriales.length > 0) {
+    if (availableSeriales.length > 0 && !created) {
       return availableSeriales[0];
     }
     const dateData = new Date(orderDetail.createdat);
