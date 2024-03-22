@@ -192,7 +192,7 @@ export class OrderDetailService {
   ) {
     const numLoteTotal = await this.obtainLote(orderDetails);
     const numLoteOrder = await this.obtainLoteByOrder(existOrder.id);
-    const loteCount = await this.obtainCountByLote(numLoteOrder.toString());
+    const loteCount = await this.obtainCountByLote(numLoteOrder.toString(), existOrder.id);
     if (!existDetailOrderWithDuration) {
       await this.createLote(+numLoteTotal + 1)
       return +numLoteTotal + 1;
@@ -212,15 +212,16 @@ export class OrderDetailService {
         await this.createLote(+numLoteOrder)
         return numLoteOrder;
       } else {
-        await this.createLote(+numLoteOrder + 1)
-        return +numLoteOrder + 1;
+        await this.createLote(+numLoteTotal + 1)
+        return +numLoteTotal + 1;
       }
     }
   }
 
-  async obtainCountByLote(lote: string) {
+  async obtainCountByLote(lote: string, orderId: string) {
     const obtainCountLote = await this.orderDetailRepository.find({
-      where: { lote },
+      where: { lote, order: { id: orderId } },
+      relations: { order: true }
     });
     return obtainCountLote.length;
   }
