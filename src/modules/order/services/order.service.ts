@@ -35,146 +35,163 @@ export class OrderService {
     });
   }
 
-  async createOrder(orderData: CreateOrderDto): Promise<Order> {
-    const existingOrder: Order = await this.orderRepository.findOne({
-      where: { saporder: orderData.saporder },
-    });
+  async createOrder(orderData: CreateOrderDto) {
+    try {
+      const existingOrder: Order = await this.orderRepository.findOne({
+        where: { saporder: orderData.saporder },
+      });
 
-    if (existingOrder) {
-      console.log('EXIST SAP ORDER');
-      return null;
-    }
-
-    const product = await this.productService.getProduct(orderData.product);
-    if (!product) {
-      console.log('NO EXIST PRODUCT');
-      return null;
-    }
-    const filler = await this.fillerService.getFiller(orderData.filler);
-
-    if (!filler) {
-      console.log('NO EXIST FILLER');
-      return null;
-    }
-    const operate = await this.operatorService.getOne(orderData.operate);
-    if (!operate) {
-      console.log('NO EXIST OPERATE');
-      return null;
-    }
-
-    const supervisor = await this.operatorService.getOne(orderData.supervisor);
-    if (!supervisor) {
-      console.log('NO EXIST OPERATE');
-      return null;
-    }
-    const tubular = await this.tubularService.getById(orderData.tubular);
-    if (!tubular) {
-      console.log('NO EXIST TUBULAR');
-      return null;
-    }
-    let turno = null
-
-    if (orderData.turno) {
-      turno = await this.shiftRepository.findOne({ where: { id: orderData.turno } })
-      if (!turno) {
-        console.log('NO EXIST TRUNO');
+      if (existingOrder) {
+        console.log('EXIST SAP ORDER');
         return null;
       }
+
+      const product = await this.productService.getProduct(orderData.product);
+      if (!product.success) {
+        console.log('NO EXIST PRODUCT');
+        return null;
+      }
+      const filler = await this.fillerService.getFiller(orderData.filler);
+
+      if (!filler) {
+        console.log('NO EXIST FILLER');
+        return null;
+      }
+      const operate = await this.operatorService.getOne(orderData.operate);
+      if (!operate) {
+        console.log('NO EXIST OPERATE');
+        return null;
+      }
+
+      const supervisor = await this.operatorService.getOne(orderData.supervisor);
+      if (!supervisor) {
+        console.log('NO EXIST OPERATE');
+        return null;
+      }
+      const tubular = await this.tubularService.getById(orderData.tubular);
+      if (!tubular) {
+        console.log('NO EXIST TUBULAR');
+        return null;
+      }
+      let turno = null
+
+      if (orderData.turno) {
+        turno = await this.shiftRepository.findOne({ where: { id: orderData.turno } })
+        if (!turno) {
+          console.log('NO EXIST TRUNO');
+          return null;
+        }
+      }
+
+
+      const newOrder = {
+        ...orderData,
+        tubular,
+        product: product.data,
+        filler,
+        operate,
+        numorder: await this.generateNumOrder(),
+        supervisor,
+        turno
+      };
+
+      const dataorder = await this.orderRepository.save(newOrder);
+      return { success: true, data: dataorder }
+    } catch (error) {
+      return { success: false, message: "Error al guardar orden" }
     }
-
-
-    const newOrder = {
-      ...orderData,
-      tubular,
-      product,
-      filler,
-      operate,
-      numorder: await this.generateNumOrder(),
-      supervisor,
-      turno
-    };
-
-    return this.orderRepository.save(newOrder);
   }
 
-  async getOrderSap(numsap: string): Promise<Order> {
-    return await this.orderRepository.findOne({
-      where: { saporder: numsap },
-      relations: { filler: true, operate: true, product: true, tubular: true },
-    });
+  async getOrderSap(numsap: string) {
+    try {
+      const data = await this.orderRepository.findOne({
+        where: { saporder: numsap },
+        relations: { filler: true, operate: true, product: true, tubular: true },
+      });
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, message: "No existe orden" }
+    }
   }
 
   async updateOrder(
     idOrder: string,
     orderData: CreateOrderDto,
-  ): Promise<Order> {
-    const existingOrder: Order = await this.orderRepository.findOne({
-      where: { saporder: orderData.saporder },
-    });
+  ) {
+    try {
 
-    const existingOrderUpdate: Order = await this.orderRepository.findOne({
-      where: { id: idOrder },
-    });
 
-    if (!existingOrderUpdate) {
-      return null;
-    }
+      const existingOrder: Order = await this.orderRepository.findOne({
+        where: { saporder: orderData.saporder },
+      });
 
-    if (existingOrder.id != idOrder) {
-      console.log('EXIST SAP ORDER');
-      return null;
-    }
+      const existingOrderUpdate: Order = await this.orderRepository.findOne({
+        where: { id: idOrder },
+      });
 
-    const product = await this.productService.getProduct(orderData.product);
-    if (!product) {
-      console.log('NO EXIST PRODUCT');
-      return null;
-    }
-    const filler = await this.fillerService.getFiller(orderData.filler);
-
-    if (!filler) {
-      console.log('NO EXIST FILLER');
-      return null;
-    }
-    const operate = await this.operatorService.getOne(orderData.operate);
-    if (!operate) {
-      console.log('NO EXIST OPERATE');
-      return null;
-    }
-
-    const supervisor = await this.operatorService.getOne(orderData.supervisor);
-    if (!supervisor) {
-      console.log('NO EXIST SUPERVISOR');
-      return null;
-    }
-    const tubular = await this.tubularService.getById(orderData.tubular);
-    if (!tubular) {
-      console.log('NO EXIST TUBULAR');
-      return null;
-    }
-
-    let turno = null
-    console.log("TURNO==>", orderData.turno)
-    if (orderData.turno) {
-      turno = await this.shiftRepository.findOne({ where: { id: orderData.turno } })
-      if (!turno) {
-        console.log('NO EXIST TRUNO');
+      if (!existingOrderUpdate) {
         return null;
       }
+
+      if (existingOrder.id != idOrder) {
+        console.log('EXIST SAP ORDER');
+        return null;
+      }
+
+      const product = await this.productService.getProduct(orderData.product);
+      if (!product.success) {
+        console.log('NO EXIST PRODUCT');
+        return null;
+      }
+      const filler = await this.fillerService.getFiller(orderData.filler);
+
+      if (!filler) {
+        console.log('NO EXIST FILLER');
+        return null;
+      }
+      const operate = await this.operatorService.getOne(orderData.operate);
+      if (!operate) {
+        console.log('NO EXIST OPERATE');
+        return null;
+      }
+
+      const supervisor = await this.operatorService.getOne(orderData.supervisor);
+      if (!supervisor) {
+        console.log('NO EXIST SUPERVISOR');
+        return null;
+      }
+      const tubular = await this.tubularService.getById(orderData.tubular);
+      if (!tubular) {
+        console.log('NO EXIST TUBULAR');
+        return null;
+      }
+
+      let turno = null
+      console.log("TURNO==>", orderData.turno)
+      if (orderData.turno) {
+        turno = await this.shiftRepository.findOne({ where: { id: orderData.turno } })
+        if (!turno) {
+          console.log('NO EXIST TRUNO');
+          return null;
+        }
+      }
+
+      const newOrder = {
+        ...orderData,
+        tubular,
+        product: product.data,
+        filler,
+        operate,
+        supervisor,
+        turno
+      };
+
+      await this.orderRepository.update(idOrder, newOrder);
+      const orderUpdated = await this.getOrder(idOrder);
+      return { success: true, data: orderUpdated }
+    } catch (error) {
+      return { success: false, message: "Orden no actualizada" }
     }
-
-    const newOrder = {
-      ...orderData,
-      tubular,
-      product,
-      filler,
-      operate,
-      supervisor,
-      turno
-    };
-
-    await this.orderRepository.update(idOrder, newOrder);
-    return this.getOrder(idOrder);
   }
 
   async updateNumberOrder() {

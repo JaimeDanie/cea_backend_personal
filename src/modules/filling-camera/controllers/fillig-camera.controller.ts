@@ -26,12 +26,12 @@ export class FilligCameraController {
   }
 
   @Post()
-  createFillig(@Body() filligCamera: FilligCameraDto): Promise<FillingCamera> {
+  createFillig(@Body() filligCamera: FilligCameraDto) {
     return this.fillingCameraService.createFilligCamera(filligCamera);
   }
 
   @Put('update-status/:id')
-  updateStatusFillig(@Param('id') id: string): Promise<FillingCamera> {
+  updateStatusFillig(@Param('id') id: string) {
     return this.fillingCameraService.updateStatusFilligCamera(id);
   }
 

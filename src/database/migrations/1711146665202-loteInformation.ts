@@ -1,0 +1,126 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class LoteInformation1711146665202 implements MigrationInterface {
+    name = 'LoteInformation1711146665202'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "lote" ADD "lider" nvarchar(255)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "analista" nvarchar(255)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "brix" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "ph" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "acidez" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "materialextranio" nvarchar(255)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "puntonegro" int`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "porcentajesolido" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "almidon" nvarchar(255)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "brixreconstruido" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "turbiedad" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "clarity" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colorabsorbancia" decimal(7,3)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colortransmitancia" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colorl" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colorc" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colorh" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colora" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colorb" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colorl2" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colora2" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colorb2" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "colorapariencia" nvarchar(255)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "consistencia5" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "consistencia20" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "consistencia30" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "viscosidadcp" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "viscosidadtorque" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "etanol" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "acidolatico" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "pruebaorgaolor" nvarchar(255)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "pruebaorgasabor" nvarchar(255)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "pruebaorgatextura" nvarchar(255)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "verificacionpn" nvarchar(255)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "testblotter" nvarchar(255)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "porcentajepulpa" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "aerobiosmesofilos" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "aerobiostermofilos" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "coliformestotales" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "coliformesfecales" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "esporas" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "anaerobios" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "lactobacillus" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "moho" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "levaduras" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "mohotermoresistentes" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "salmonella" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "alicyclobacillus" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "listeria" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "conteohoward" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "pseudomonas" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "ecoli" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "tab" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "guayacol" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "psicrofilos" decimal(7,2)`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD "order" uniqueidentifier`);
+        await queryRunner.query(`ALTER TABLE "lote" ADD CONSTRAINT "FK_2496d3df218da7fb800906bb812" FOREIGN KEY ("order") REFERENCES "orders"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "lote" DROP CONSTRAINT "FK_2496d3df218da7fb800906bb812"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "order"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "psicrofilos"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "guayacol"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "tab"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "ecoli"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "pseudomonas"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "conteohoward"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "listeria"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "alicyclobacillus"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "salmonella"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "mohotermoresistentes"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "levaduras"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "moho"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "lactobacillus"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "anaerobios"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "esporas"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "coliformesfecales"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "coliformestotales"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "aerobiostermofilos"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "aerobiosmesofilos"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "porcentajepulpa"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "testblotter"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "verificacionpn"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "pruebaorgatextura"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "pruebaorgasabor"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "pruebaorgaolor"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "acidolatico"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "etanol"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "viscosidadtorque"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "viscosidadcp"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "consistencia30"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "consistencia20"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "consistencia5"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colorapariencia"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colorb2"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colora2"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colorl2"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colorb"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colora"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colorh"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colorc"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colorl"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colortransmitancia"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "colorabsorbancia"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "clarity"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "turbiedad"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "brixreconstruido"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "almidon"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "porcentajesolido"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "puntonegro"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "materialextranio"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "acidez"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "ph"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "brix"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "analista"`);
+        await queryRunner.query(`ALTER TABLE "lote" DROP COLUMN "lider"`);
+    }
+
+}

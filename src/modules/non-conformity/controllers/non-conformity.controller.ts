@@ -10,7 +10,7 @@ import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 @UseGuards(AuthGuard)
 @Controller('non-conformity')
 export class NonConformityController {
-  constructor(private nonConformitySevice: NonConformityService) {}
+  constructor(private nonConformitySevice: NonConformityService) { }
 
   @Get()
   getAll(): Promise<NonConformity[]> {
@@ -20,7 +20,7 @@ export class NonConformityController {
   @Post()
   saveNonConformity(
     @Body() nonConformityDto: NonConformityDto,
-  ): Promise<NonConformity> {
+  ) {
     return this.nonConformitySevice.saveNonConformity(nonConformityDto);
   }
 }

@@ -12,22 +12,27 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
     @Inject(forwardRef(() => OrderService))
     private readonly orderService: OrderService,
-  ) {}
+  ) { }
 
   getProducts(): Promise<Product[]> {
     return this.productRepository.find();
   }
 
-  getProduct(code: string): Promise<Product> {
-    return this.productRepository.findOneBy({ code });
+  async getProduct(code: string) {
+    const product = await this.productRepository.findOneBy({ code });
+    if (product) {
+      return { success: true, data: product }
+    }
+    return { success: false, message: "No existe producto" }
   }
 
-  async createProduct(product: ProductDto): Promise<Product> {
+  async createProduct(product: ProductDto) {
     const productFind = await this.getProduct(product.code);
     if (!productFind) {
-      return this.productRepository.save(product);
+      const productSave = await this.productRepository.save(product);
+      return { success: true, data: productSave };
     }
-    return null;
+    return { success: false, message: "Producto ya existe" };
   }
 
   async updateProduct(code: string, product: UpdateProductDto): Promise<any> {
@@ -38,11 +43,11 @@ export class ProductService {
     if (product.characteristiclote && existDetails.length > 0) {
       return { success: false, message: 'no updated lote tamanio' };
     }
-    if (productFind && (!productNew || productFind.code == productNew.code)) {
-      await this.productRepository.update(productFind.code, product);
-      return product;
+    if (productFind && (!productNew || productFind.data.code == productNew.data.code)) {
+      await this.productRepository.update(productFind.data.code, product);
+      return { success: true, data: product };
     }
-    return null;
+    return { success: false, message: "Producto no actualizado" };
   }
 
   async deleteProduct(code: string): Promise<any> {

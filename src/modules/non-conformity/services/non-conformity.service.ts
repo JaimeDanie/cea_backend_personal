@@ -9,7 +9,7 @@ export class NonConformityService {
   constructor(
     @InjectRepository(NonConformity)
     private nonConformityRepository: Repository<NonConformity>,
-  ) {}
+  ) { }
 
   getAll(): Promise<NonConformity[]> {
     return this.nonConformityRepository.find();
@@ -29,11 +29,12 @@ export class NonConformityService {
 
   async saveNonConformity(
     nonConformityDto: NonConformityDto,
-  ): Promise<NonConformity> {
+  ) {
     const exist = await this.getByName(nonConformityDto);
     if (!exist) {
-      return this.nonConformityRepository.save(nonConformityDto);
+      const saveStatus = await this.nonConformityRepository.save(nonConformityDto);
+      return { success: true, data: saveStatus };
     }
-    return null;
+    return { success: false, message: "No se puede crear no conformidad" };
   }
 }

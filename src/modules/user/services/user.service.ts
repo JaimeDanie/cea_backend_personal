@@ -101,7 +101,7 @@ export class UserService {
         userCreated,
       );
 
-      return result;
+      return { success: true, data: result };
     } catch (error) {
       throw new Error(error);
     }

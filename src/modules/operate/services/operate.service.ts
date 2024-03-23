@@ -8,14 +8,20 @@ import { OperateDto } from '../dtos/operate.dto';
 export class OperateService {
   constructor(
     @InjectRepository(Operate) private operateRepository: Repository<Operate>,
-  ) {}
+  ) { }
 
   getAll(): Promise<Operate[]> {
     return this.operateRepository.find();
   }
 
-  create(operate: OperateDto): Promise<Operate> {
-    return this.operateRepository.save(operate);
+  async create(operate: OperateDto) {
+    try {
+      const operateSave = await this.operateRepository.save(operate);
+      return { success: true, data: operateSave };
+    } catch (error) {
+      return { success: false, message: "No se puede guardar operador" };
+    }
+
   }
 
   getOne(id: string): Promise<Operate> {

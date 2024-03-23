@@ -19,14 +19,14 @@ export class FillerService {
     return this.fillerRepository.findOne({ where: { id } });
   }
 
-  async createFiller(filler: FillerDto): Promise<Filler> {
+  async createFiller(filler: FillerDto) {
     const fillerFound = await this.getFillerValid(filler.filler);
-    console.log('FOUND==>', fillerFound);
     if (!fillerFound) {
       const newFiller = { ...filler };
-      return this.fillerRepository.save(newFiller);
+      const fillerSave = await this.fillerRepository.save(newFiller);
+      return { success: true, data: fillerSave };
     }
-    return null;
+    return { success: false, message: "No se pudo crear llenadora" };
   }
 
   async updateFiller(id: string, filler: FillerDto) {

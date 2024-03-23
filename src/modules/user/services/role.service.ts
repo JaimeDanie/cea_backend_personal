@@ -16,7 +16,7 @@ export class RoleService {
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
-  ) {}
+  ) { }
 
   async getRoles(): Promise<Role[]> {
     return await AppDataSource.manager.find(Role);
@@ -26,7 +26,7 @@ export class RoleService {
     return await AppDataSource.manager.findOne(Role, { where: { id } });
   }
 
-  async createRole(role: CreateRoleDto): Promise<Role> {
+  async createRole(role: CreateRoleDto) {
     const existingRole: Role = await AppDataSource.manager.findOne(Role, {
       where: { name: role.name },
     });
@@ -48,10 +48,10 @@ export class RoleService {
       where: { id: createResult.identifiers[0].id },
     });
 
-    return result;
+    return { success: true, data: result };
   }
 
-  async updateRole(id: string, role: UpdateRoleDto): Promise<Role> {
+  async updateRole(id: string, role: UpdateRoleDto) {
     try {
       const updateResult = await AppDataSource.createQueryBuilder()
         .update(Role)
@@ -61,7 +61,7 @@ export class RoleService {
       const result = await AppDataSource.manager.findOne(Role, {
         where: { id },
       });
-      return result;
+      return { success: true, data: result };
     } catch (error) {
       throw new Error(error);
     }

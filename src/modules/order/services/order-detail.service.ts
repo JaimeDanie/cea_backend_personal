@@ -194,7 +194,7 @@ export class OrderDetailService {
     const numLoteOrder = await this.obtainLoteByOrder(existOrder.id);
     const loteCount = await this.obtainCountByLote(numLoteOrder.toString(), existOrder.id);
     if (!existDetailOrderWithDuration) {
-      await this.createLote(+numLoteTotal + 1)
+      await this.createLote(+numLoteTotal + 1, existOrder)
       return +numLoteTotal + 1;
     }
     if (
@@ -202,17 +202,17 @@ export class OrderDetailService {
       existDetailOrderWithDuration.order.product.code &&
       loteCount == Number(existOrder.product.characteristiclote)
     ) {
-      await this.createLote(+numLoteTotal + 1)
+      await this.createLote(+numLoteTotal + 1, existOrder)
       return +numLoteTotal + 1;
     } else if (
       existOrder.product.code ===
       existDetailOrderWithDuration.order.product.code
     ) {
       if (loteCount < Number(existOrder.product.characteristiclote)) {
-        await this.createLote(+numLoteOrder)
+        await this.createLote(+numLoteOrder, existOrder)
         return numLoteOrder;
       } else {
-        await this.createLote(+numLoteTotal + 1)
+        await this.createLote(+numLoteTotal + 1, existOrder)
         return +numLoteTotal + 1;
       }
     }
@@ -804,7 +804,7 @@ export class OrderDetailService {
         .select('lote').distinct().getRawMany();
       // DESACTIVAR CUANDO SE LIMPIE LA DATA
       await Promise.all(lotes.map(async (lote) => {
-        await this.createLote(lote.lote)
+        await this.createLote(lote.lote, existOrder)
       }))
 
       return { sucess: true, data: lotes }
@@ -878,10 +878,10 @@ export class OrderDetailService {
     }
   }
 
-  async createLote(numlote: number) {
+  async createLote(numlote: number, order: Order) {
     const existLote = await this.loteRepository.findOne({ where: { numlote } })
     if (!existLote) {
-      await this.loteRepository.save({ numlote })
+      await this.loteRepository.save({ numlote, order })
     }
     return true;
   }

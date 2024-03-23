@@ -26,7 +26,7 @@ export class FilligCameraService {
 
   async createFilligCamera(
     filligCamera: FilligCameraDto,
-  ): Promise<FillingCamera> {
+  ) {
     const exist = await this.existByName(filligCamera);
 
     if (!exist) {
@@ -34,12 +34,13 @@ export class FilligCameraService {
         ...filligCamera,
         status: FillingCameraStatusEnum.ACTIVO,
       };
-      return this.filligCameraRepository.save(newFilligCamera);
+      const filligSave = await this.filligCameraRepository.save(newFilligCamera);
+      return { success: true, data: filligSave };
     }
-    return null;
+    return { success: false, message: "Error al crear cámara de llenado" };
   }
 
-  async updateStatusFilligCamera(id: string): Promise<FillingCamera> {
+  async updateStatusFilligCamera(id: string) {
     const exist = await this.findByid(id);
     if (exist) {
       const newStatus =
@@ -48,9 +49,9 @@ export class FilligCameraService {
           : FillingCameraStatusEnum.ACTIVO;
       const newFillig = { ...exist, status: newStatus };
       this.filligCameraRepository.update(id, newFillig);
-      return newFillig;
+      return { success: true, data: newFillig };
     }
-    return null;
+    return { success: false, message: "No se pudo actualizar cámara de llenado" };
   }
 
   findByid(id: string): Promise<FillingCamera> {

@@ -19,7 +19,7 @@ import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 @UseGuards(AuthGuard)
 @Controller('product')
 export class ProductController {
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService) { }
 
   @Get()
   getAllProducts(): Promise<Product[]> {
@@ -32,7 +32,7 @@ export class ProductController {
   }
 
   @Post()
-  createProduct(@Body() product: ProductDto): Promise<Product> {
+  createProduct(@Body() product: ProductDto) {
     return this.productService.createProduct(product);
   }
 

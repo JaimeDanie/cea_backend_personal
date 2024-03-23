@@ -10,7 +10,7 @@ import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 @UseGuards(AuthGuard)
 @Controller('operate')
 export class OperateController {
-  constructor(private operateService: OperateService) {}
+  constructor(private operateService: OperateService) { }
 
   @Get()
   getAll(): Promise<Operate[]> {
@@ -18,7 +18,7 @@ export class OperateController {
   }
 
   @Post()
-  createOperate(@Body() operateDto: OperateDto): Promise<Operate> {
+  createOperate(@Body() operateDto: OperateDto) {
     return this.operateService.create(operateDto);
   }
 }

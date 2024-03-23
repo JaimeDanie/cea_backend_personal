@@ -20,13 +20,13 @@ export class TubularService {
     });
   }
 
-  async createTubular(tubular: TubularDto): Promise<Tubular> {
-    console.log("LLEGA ACA")
+  async createTubular(tubular: TubularDto) {
     if (!(await this.getByName(tubular))) {
       const newTubular = { name: tubular.name.toString() };
-      return this.tubularRepository.save(newTubular);
+      const tubularSave = await this.tubularRepository.save(newTubular);
+      return { success: true, data: tubularSave };
     }
-    return null;
+    return { success: false, message: "Error al crear tubular" };
   }
 
   getById(id: string): Promise<Tubular> {

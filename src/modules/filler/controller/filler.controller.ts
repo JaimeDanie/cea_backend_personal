@@ -36,7 +36,7 @@ export class FillerController {
   }
 
   @Post()
-  createFiller(@Body() filler: FillerDto): Promise<Filler> {
+  createFiller(@Body() filler: FillerDto) {
     return this.fillerService.createFiller(filler);
   }
 

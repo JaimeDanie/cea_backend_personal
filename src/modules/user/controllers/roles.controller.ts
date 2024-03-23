@@ -27,12 +27,12 @@ export class RolesController {
   }
 
   @Post()
-  create(@Body() role: CreateRoleDto): Promise<Role> {
+  create(@Body() role: CreateRoleDto) {
     return this.roleService.createRole(role);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: UpdateRoleDto): Promise<Role> {
+  update(@Param('id') id: string, @Body() body: UpdateRoleDto) {
     return this.roleService.updateRole(id, body);
   }
 

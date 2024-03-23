@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UpdateLoteDto } from '../dtos/lote-update.dto';
 import { Shift } from '../entities/shift.entity';
 import { ShiftDto } from '../dtos/shift.dto';
 

@@ -4,12 +4,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Lote } from '../entities/lote.entity';
 import { UpdateLoteDto } from '../dtos/lote-update.dto';
+import { OrderDetail } from '../entities/order-detail.entity';
+import { LoteDto } from '../dtos/lote.dto';
 
 @Injectable()
 export class LoteService {
     constructor(
         @InjectRepository(Lote)
         private readonly loteRepository: Repository<Lote>,
+        @InjectRepository(OrderDetail)
+        private readonly orderDetailRepository: Repository<OrderDetail>,
         private readonly nonConformityService: NonConformityService,
     ) { }
 
@@ -21,8 +25,18 @@ export class LoteService {
 
 
     async getById(id: number) {
-        const lote = await this.loteRepository.findOne({ where: { numlote: id } });
+        let lote = await this.loteRepository.findOne({ where: { numlote: id } });
         if (lote) {
+            const orderLote = await this.orderDetailRepository.find({ where: { lote: id.toString() }, relations: { order: true } })
+            if (orderLote.length > 0) {
+                const loteUpdated = await this.loteRepository.update(id, { ...lote, orden: orderLote[0].order });
+                if (loteUpdated.affected) {
+                    lote = await this.loteRepository.findOne({
+                        where: { numlote: id },
+                        relations: ['orden', 'orden.product', 'orden.filler', 'orden.operate', 'orden.supervisor']
+                    });
+                }
+            }
             return { success: true, data: lote }
         }
         return { success: false, message: "no exist lote" }
@@ -33,19 +47,37 @@ export class LoteService {
         try {
             const existLote = await this.loteRepository.findOne({ where: { numlote: id } })
             if (!existLote) {
-                return { success: false, message: "no exist lote" }
+                return { success: false, message: "No existe lote" }
             }
             const existStatus = await this.nonConformityService.getById(updateLote.status)
             if (!existStatus) {
-                return { success: false, message: "no exist status" }
+                return { success: false, message: "No existe status" }
             }
 
             await this.loteRepository.update(id, { ...existLote, status: existStatus })
 
-            return { success: true, message: "update lote successfully" }
+            return { success: true, message: "Lote actualizado correctamente" }
 
         } catch (error) {
-            return { success: false, message: "no exist status exeption id" }
+            return { success: false, message: "No existe status." }
+        }
+
+
+    }
+
+    async updateLoteInformation(id: number, updateLote: LoteDto) {
+        try {
+            const existLote = await this.loteRepository.findOne({ where: { numlote: id } })
+            if (!existLote) {
+                return { success: false, message: "no exist lote" }
+            }
+
+            await this.loteRepository.update(id, { ...existLote, ...updateLote })
+
+            return { success: true, message: "Actualizada informacion de lote correctamente" }
+
+        } catch (error) {
+            return { success: false, message: "No existe lote" }
         }
 
 

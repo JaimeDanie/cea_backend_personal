@@ -33,12 +33,12 @@ export class OrdersController {
   }
 
   @Post()
-  create(@Body() order: CreateOrderDto): Promise<Order> {
+  create(@Body() order: CreateOrderDto) {
     return this.orderService.createOrder(order);
   }
 
   @Get('byOrderSap/:numorder')
-  getByNumSap(@Param('numorder') numorder: string): Promise<Order> {
+  getByNumSap(@Param('numorder') numorder: string) {
     return this.orderService.getOrderSap(numorder);
   }
   @Get('/updateNumOrders/update')
@@ -50,7 +50,7 @@ export class OrdersController {
   updateOredr(
     @Param('id') id: string,
     @Body() order: CreateOrderDto,
-  ): Promise<Order> {
+  ) {
     return this.orderService.updateOrder(id, order);
   }
 }

@@ -27,7 +27,7 @@ export class TubularController {
   }
 
   @Post()
-  createTubular(@Body() tubular: TubularDto): Promise<Tubular> {
+  createTubular(@Body() tubular: TubularDto) {
     return this.tubularService.createTubular(tubular);
   }
 
