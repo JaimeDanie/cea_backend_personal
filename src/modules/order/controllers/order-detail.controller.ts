@@ -138,4 +138,9 @@ export class OrderDetailController {
   getLoteGnal() {
     return this.orderDetailService.getLotesGnal()
   }
+
+  @Get('/lotes/resume/day')
+  getLoteResume() {
+    return this.orderDetailService.getLotesResumeDay()
+  }
 }

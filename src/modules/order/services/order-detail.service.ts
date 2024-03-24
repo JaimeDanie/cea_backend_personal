@@ -4,7 +4,7 @@ import { FilligCameraService } from './../../filling-camera/services/fillig-came
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from '../entities/order.entity';
-import { IsNull, LessThan, Like, MoreThan, Not, Repository } from 'typeorm';
+import { Between, IsNull, LessThan, Like, MoreThan, Not, Repository } from 'typeorm';
 import { OrderDetail } from '../entities/order-detail.entity';
 import {
   CreateMoreOrderDetailDto,
@@ -910,7 +910,60 @@ export class OrderDetailService {
           .select('lote').distinct().getRawMany();
         if (lotes.length > 0) {
           await Promise.all(lotes.map(async (lote) => {
-            const quatityTambores = await this.orderDetailRepository.find({ where: { lote: lote.lote } })
+            const quatityTambores = await this.orderDetailRepository.find({
+              relations: { status: true },
+              where: { lote: lote.lote, status: { name: Not(NonConformityEnum.IN_PROCESS) } }
+            })
+            resultLotes.push({ orderSap: orden.saporder, lote: lote.lote, product: orden.product.name, quantity: quatityTambores.length })
+          }))
+        }
+      }))
+      resultLotes = resultLotes.sort((a, b) => Number(a.lote) - Number(b.lote))
+      return { sucess: true, data: resultLotes }
+
+    } catch (error) {
+      console.log("EXCEPTION==>", error)
+      return { sucess: false, message: "exception to get lotes" }
+    }
+  }
+
+  async getLotesResumeDay() {
+    try {
+
+      const fechaActual = new Date(this.formatter.format(new Date()))
+      const fechaToMatch = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1).toString().padStart(2, '0')
+        + "-" + fechaActual.getDate().toString().padStart(2, '0')
+      const current = new Date().getTime()
+      const addMlSeconds = (5 * 60) * 60000;
+      const dateInitial = new Date(current - addMlSeconds)
+
+      const currentFinal = new Date()
+      currentFinal.setHours(23);
+      currentFinal.setMinutes(59);
+      currentFinal.setSeconds(59)
+
+      const dateFinal = new Date(currentFinal.getTime() - addMlSeconds)
+      console.log("DATE INITIAL==>", dateInitial)
+      console.log("DATE FINAL==>", dateFinal)
+
+      const existOrder = await this.orderRepository.find({ relations: ["product"], where: { createdAt: Between(dateInitial, dateFinal) } })
+
+      if (existOrder.length === 0) {
+        return { sucess: false, message: "No existen órdenes" }
+      }
+      let resultLotes = []
+      await Promise.all(existOrder.map(async (orden) => {
+        const idorder = orden.id
+        const lotes = await this.orderDetailRepository.createQueryBuilder("orderdetail").
+          where("orderdetail.order = :idorder AND orderdetail.datefilling like :date", { idorder, date: fechaToMatch + "%" })
+          .select('lote').distinct().getRawMany();
+        if (lotes.length > 0) {
+          await Promise.all(lotes.map(async (lote) => {
+            const quatityTambores = await this.orderDetailRepository.find({
+              relations: { status: true }, where: {
+                lote: lote.lote, status: { name: Not(NonConformityEnum.IN_PROCESS) }
+              }
+            })
             resultLotes.push({ orderSap: orden.saporder, lote: lote.lote, product: orden.product.name, quantity: quatityTambores.length })
           }))
         }
