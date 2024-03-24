@@ -897,7 +897,7 @@ export class OrderDetailService {
 
   async getLotesGnal() {
     try {
-      const existOrder = await this.orderRepository.find({ relations: ["product"] })
+      const existOrder = await this.orderRepository.find({ relations: ["product"], where: { shiftclosing: 1 } })
 
       if (existOrder.length === 0) {
         return { sucess: false, message: "No existen órdenes" }
@@ -946,7 +946,7 @@ export class OrderDetailService {
       console.log("DATE INITIAL==>", dateInitial)
       console.log("DATE FINAL==>", dateFinal)
 
-      const existOrder = await this.orderRepository.find({ relations: ["product"], where: { createdAt: Between(dateInitial, dateFinal) } })
+      const existOrder = await this.orderRepository.find({ relations: ["product"], where: { createdAt: Between(dateInitial, dateFinal), shiftclosing: 1 } })
 
       if (existOrder.length === 0) {
         return { sucess: false, message: "No existen órdenes" }

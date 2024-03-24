@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 import { LoteService } from '../services/lote.service';
 import { UpdateLoteDto } from '../dtos/lote-update.dto';
-import { LoteDto } from '../dtos/lote.dto';
+import { LoteDto, LoteDtoSeveral } from '../dtos/lote.dto';
 
 @ApiTags('Lote')
 @ApiBearerAuth()
@@ -30,5 +30,10 @@ export class LoteController {
     @Put('/information/:id')
     updateLoteInformation(@Param('id') id: number, @Body() lote: LoteDto) {
         return this.loteService.updateLoteInformation(id, lote)
+    }
+
+    @Put('/informationLote/several')
+    updateLoteInformationSeveral(@Body() loteSeveral: LoteDtoSeveral) {
+        return this.loteService.updateLoteInformationSeveral(loteSeveral)
     }
 }

@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { Lote } from '../entities/lote.entity';
 import { UpdateLoteDto } from '../dtos/lote-update.dto';
 import { OrderDetail } from '../entities/order-detail.entity';
-import { LoteDto } from '../dtos/lote.dto';
+import { LoteDto, LoteDtoSeveral } from '../dtos/lote.dto';
 
 @Injectable()
 export class LoteService {
@@ -78,6 +78,35 @@ export class LoteService {
 
         } catch (error) {
             return { success: false, message: "No existe lote" }
+        }
+
+
+    }
+
+    async updateLoteInformationSeveral(updateLote: LoteDtoSeveral) {
+        try {
+            const existLotes = await Promise.all(updateLote.lotes.map(async (lote) => {
+                return await this.loteRepository.findOne({ where: { numlote: lote } })
+            }))
+            const exitenLotes = existLotes.filter((lote) => lote === null)
+            if (exitenLotes.length > 0) {
+                return { success: false, message: "Lotes no existen" + exitenLotes.join("-") }
+            }
+            const updatedLotes = await Promise.all(existLotes.map(async (lote) => {
+                delete updateLote["lotes"]
+                return await this.loteRepository.update(lote.numlote, { ...lote, ...updateLote })
+            }))
+
+            const noSavedLotes = updatedLotes.filter((lotes) => lotes.affected === 0)
+            if (noSavedLotes.length === 0) {
+                return { success: true, message: "Actualizada informacion de lote correctamente" }
+            } else {
+                return { success: false, message: "Lotes no se actualizaron " + noSavedLotes.join("-") }
+            }
+
+        } catch (error) {
+            console.log("ERROR==>", error)
+            return { success: false, message: "Error al actualizar lotes" }
         }
 
 
