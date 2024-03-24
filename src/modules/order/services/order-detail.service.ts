@@ -933,9 +933,12 @@ export class OrderDetailService {
       const fechaActual = new Date(this.formatter.format(new Date()))
       const fechaToMatch = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1).toString().padStart(2, '0')
         + "-" + fechaActual.getDate().toString().padStart(2, '0')
-      const current = new Date().getTime()
+      const current = new Date()
+      current.setHours(0)
+      current.setMinutes(0)
+      current.setSeconds(0)
       const addMlSeconds = (5 * 60) * 60000;
-      const dateInitial = new Date(current - addMlSeconds)
+      const dateInitial = new Date(current.getTime() - addMlSeconds)
 
       const currentFinal = new Date()
       currentFinal.setHours(23);
