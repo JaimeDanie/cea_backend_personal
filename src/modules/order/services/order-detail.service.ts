@@ -881,7 +881,7 @@ export class OrderDetailService {
   async createLote(numlote: number, order: Order) {
     const existLote = await this.loteRepository.findOne({ where: { numlote } })
     if (!existLote) {
-      await this.loteRepository.save({ numlote, order })
+      await this.loteRepository.save({ numlote, orden: order })
     }
     return true;
   }
