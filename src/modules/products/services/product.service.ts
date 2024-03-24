@@ -28,7 +28,7 @@ export class ProductService {
 
   async createProduct(product: ProductDto) {
     const productFind = await this.getProduct(product.code);
-    if (!productFind) {
+    if (!productFind.success) {
       const productSave = await this.productRepository.save(product);
       return { success: true, data: productSave };
     }
